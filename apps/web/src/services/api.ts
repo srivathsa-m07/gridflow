@@ -1,6 +1,7 @@
 import { Metrics, IncidentData, AgentData } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = `${API_URL}/api`;
 
 export const apiService = {
   checkHealth: async (): Promise<boolean> => {

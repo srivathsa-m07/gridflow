@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "${API_PORT:-3001}:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=${MONGODB_URI}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - NODE_ENV=${NODE_ENV:-production}
+    restart: always
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3001}
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    restart: always
+    depends_on:
+      - api
+
+  agent:
+    build:
+      context: .
+      dockerfile: apps/agent/Dockerfile
+    environment:
+      - BACKEND_URL=http://api:3001
+      - AGENT_ID=${AGENT_ID:-gridflow-agent-docker}
+    restart: always
+    depends_on:
+      - api
