@@ -33,7 +33,7 @@ Incident Details:
 Return ONLY the 1-sentence summary, keeping it concise and technical. Example: "High CPU detected on gridflow-agent-01. System may be under heavy processing load."`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: {
