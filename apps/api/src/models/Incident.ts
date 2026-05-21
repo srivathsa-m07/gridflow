@@ -9,6 +9,7 @@ export interface IIncident extends Document {
   hostname: string;
   aiSummary?: string;
   timestamp: Date;
+  organizationId?: string;
 }
 
 const IncidentSchema = new Schema<IIncident>({
@@ -19,7 +20,8 @@ const IncidentSchema = new Schema<IIncident>({
   agentId: { type: String, required: true },
   hostname: { type: String, required: true },
   aiSummary: { type: String },
-  timestamp: { type: Date, default: Date.now }
+  timestamp: { type: Date, default: Date.now },
+  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization' }
 });
 
 export const Incident = mongoose.model<IIncident>('Incident', IncidentSchema);

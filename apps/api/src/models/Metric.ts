@@ -8,6 +8,7 @@ export interface IMetric extends Document {
   agentId?: string;
   hostname?: string;
   timestamp: Date;
+  organizationId?: string;
 }
 
 const MetricSchema = new Schema<IMetric>({
@@ -17,7 +18,8 @@ const MetricSchema = new Schema<IMetric>({
   status: { type: String, required: true, enum: ['healthy', 'warning', 'critical'] },
   agentId: { type: String },
   hostname: { type: String },
-  timestamp: { type: Date, default: Date.now }
+  timestamp: { type: Date, default: Date.now },
+  organizationId: { type: Schema.Types.ObjectId, ref: 'Organization' }
 });
 
 export const Metric = mongoose.model<IMetric>('Metric', MetricSchema);

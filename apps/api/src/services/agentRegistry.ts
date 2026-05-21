@@ -10,6 +10,7 @@ export interface AgentData {
   status: 'healthy' | 'warning' | 'critical';
   lastSeen: Date;
   isOnline: boolean;
+  organizationId?: string;
 }
 
 const agentsRegistry = new Map<string, AgentData>();
@@ -17,7 +18,8 @@ const agentsRegistry = new Map<string, AgentData>();
 export const updateAgent = (
   agentId: string,
   hostname: string,
-  metrics: { cpu: number; memory: number; uptime: number; status: 'healthy' | 'warning' | 'critical' }
+  metrics: { cpu: number; memory: number; uptime: number; status: 'healthy' | 'warning' | 'critical' },
+  organizationId?: string
 ) => {
   const existingAgent = agentsRegistry.get(agentId);
   const now = new Date();
@@ -31,7 +33,8 @@ export const updateAgent = (
     hostname,
     ...metrics,
     lastSeen: now,
-    isOnline: true
+    isOnline: true,
+    organizationId
   };
 
   agentsRegistry.set(agentId, agentData);
@@ -43,8 +46,11 @@ export const updateAgent = (
   }
 };
 
-export const getAgents = (): AgentData[] => {
-  return Array.from(agentsRegistry.values());
+export const getAgents = (organizationId?: string): AgentData[] => {
+  return Array.from(agentsRegistry.values()).filter((agent) => {
+    if (!organizationId) return true;
+    return agent.organizationId === organizationId;
+  });
 };
 
 export const startAgentOfflineDetection = () => {

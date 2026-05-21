@@ -11,14 +11,15 @@ export const processIncidentDetection = async (metrics: {
   hostname: string;
   cpu: number;
   memory: number;
+  organizationId?: string;
 }) => {
-  const { agentId, hostname, cpu, memory } = metrics;
+  const { agentId, hostname, cpu, memory, organizationId } = metrics;
   
   if (cpu > 80) {
-    await triggerIncident('HIGH_CPU', cpu, agentId, hostname);
+    await triggerIncident('HIGH_CPU', cpu, agentId, hostname, organizationId);
   }
   if (memory > 80) {
-    await triggerIncident('HIGH_MEMORY', memory, agentId, hostname);
+    await triggerIncident('HIGH_MEMORY', memory, agentId, hostname, organizationId);
   }
 };
 
@@ -26,7 +27,8 @@ const triggerIncident = async (
   type: 'HIGH_CPU' | 'HIGH_MEMORY',
   value: number,
   agentId: string,
-  hostname: string
+  hostname: string,
+  organizationId?: string
 ) => {
   const key = `${agentId}:${type}`;
   const now = Date.now();
@@ -49,7 +51,8 @@ const triggerIncident = async (
     agentId,
     hostname,
     aiSummary,
-    timestamp: new Date()
+    timestamp: new Date(),
+    organizationId
   };
 
   try {
@@ -61,6 +64,10 @@ const triggerIncident = async (
 
   const io = getIO();
   if (io) {
-    io.emit('incident', incidentData);
+    if (organizationId) {
+      io.to(organizationId).emit('incident', incidentData);
+    } else {
+      io.emit('incident', incidentData);
+    }
   }
 };

@@ -7,6 +7,7 @@ export interface Metrics {
   hostname?: string;
   timestamp?: string | Date;
   formattedTime?: string;
+  organizationId?: string;
 }
 
 export interface AlertData {
@@ -25,6 +26,7 @@ export interface IncidentData {
   hostname: string;
   aiSummary?: string;
   timestamp: string | Date;
+  organizationId?: string;
 }
 
 export interface AgentData {
@@ -36,4 +38,5 @@ export interface AgentData {
   status: 'healthy' | 'warning' | 'critical';
   lastSeen: Date;
   isOnline: boolean;
+  organizationId?: string;
 }

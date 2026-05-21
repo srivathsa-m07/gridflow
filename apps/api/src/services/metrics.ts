@@ -45,6 +45,7 @@ export const handleIncomingMetrics = async (payload: {
   cpu: number;
   memory: number;
   uptime: number;
+  organizationId?: string;
 }) => {
   let status: 'healthy' | 'warning' | 'critical' = 'healthy';
   if (payload.cpu > 80 || payload.memory > 80) {
@@ -61,13 +62,23 @@ export const handleIncomingMetrics = async (payload: {
 
   const io = getIO();
   if (io) {
-    io.emit('metrics_update', enrichedMetrics);
-    
+    if (payload.organizationId) {
+      io.to(payload.organizationId).emit('metrics_update', enrichedMetrics);
+    } else {
+      io.emit('metrics_update', enrichedMetrics);
+    }
+
     if (payload.cpu > 80) {
-      io.emit('alert', {
+      const alertPayload = {
         type: 'HIGH_CPU',
-        message: `High CPU usage detected on agent: ${payload.agentId} (${payload.hostname})`
-      });
+        message: `High CPU usage detected on agent: ${payload.agentId} (${payload.hostname})`,
+        organizationId: payload.organizationId
+      };
+      if (payload.organizationId) {
+        io.to(payload.organizationId).emit('alert', alertPayload);
+      } else {
+        io.emit('alert', alertPayload);
+      }
     }
   }
 
@@ -80,7 +91,8 @@ export const handleIncomingMetrics = async (payload: {
         status,
         agentId: payload.agentId,
         hostname: payload.hostname,
-        timestamp: enrichedMetrics.timestamp
+        timestamp: enrichedMetrics.timestamp,
+        organizationId: payload.organizationId
       });
     } catch (err) {
       logger.error(`Error saving agent metrics to MongoDB: ${err}`);
@@ -92,13 +104,14 @@ export const handleIncomingMetrics = async (payload: {
     memory: payload.memory,
     uptime: payload.uptime,
     status
-  });
-
+  }, payload.organizationId);
+  
   processIncidentDetection({
     agentId: payload.agentId,
     hostname: payload.hostname,
     cpu: payload.cpu,
-    memory: payload.memory
+    memory: payload.memory,
+    organizationId: payload.organizationId
   }).catch(err => logger.error(`Incident detection error: ${err}`));
 
   return enrichedMetrics;

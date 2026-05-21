@@ -9,8 +9,10 @@ import { getAgents, startAgentOfflineDetection } from './services/agentRegistry'
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 
+import authRoutes from './routes/auth';
 import agentRoutes from './routes/agent';
 import metricsRoutes from './routes/metrics';
+import { authMiddleware } from './middleware/auth';
 
 const app = express();
 const httpServer = createServer(app);
@@ -22,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes registration
+app.use('/api/auth', authRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/metrics', metricsRoutes);
 
@@ -34,8 +37,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/api/agents', (req, res) => {
-  res.json(getAgents());
+app.get('/api/agents', authMiddleware, (req, res) => {
+  res.json(getAgents(req.user?.organizationId));
 });
 
 // Centralized Error Handling Middleware
