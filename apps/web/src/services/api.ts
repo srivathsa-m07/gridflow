@@ -85,4 +85,11 @@ export const apiService = {
   fetchAgents: async (): Promise<AgentData[]> => {
     return fetchWithAuth('/agents');
   }
+  ,
+
+  createAgent: async (name: string, hostname?: string) => {
+    const body = JSON.stringify({ name, hostname });
+    const res = await fetchWithAuth('/agents/create', { method: 'POST', body });
+    return res;
+  }
 };

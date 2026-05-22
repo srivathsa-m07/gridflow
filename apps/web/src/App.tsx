@@ -5,6 +5,7 @@ import { AlertBanner } from './components/AlertBanner';
 import { MetricsChart } from './components/MetricsChart';
 import { IncidentPanel } from './components/IncidentPanel';
 import { InfrastructurePanel } from './components/InfrastructurePanel';
+import { AgentOnboardingPanel } from './components/AgentOnboardingPanel';
 import { apiService } from './services/api';
 import { socketService } from './services/socket';
 import { Metrics, AlertData, IncidentData, AgentData } from './types';
@@ -22,6 +23,10 @@ const App: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [incidents, setIncidents] = useState<IncidentData[]>([]);
   const [agents, setAgents] = useState<AgentData[]>([]);
+  const [showAgentForm, setShowAgentForm] = useState(false);
+  const [agentForm, setAgentForm] = useState({ name: '' });
+  const [createdAgent, setCreatedAgent] = useState<{ name: string; agentKey: string; backendUrl: string } | null>(null);
+  const [isCreatingAgent, setIsCreatingAgent] = useState(false);
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', organizationName: '' });
   const USER_STORAGE_KEY = 'GRIDFLOW_USER_INFO';
 
@@ -67,6 +72,39 @@ const App: React.FC = () => {
       organizationName: result.user?.organizationName
     };
     setStoredUser(storedUser);
+  };
+
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+  const handleCreateAgent = async () => {
+    if (!agentForm.name.trim()) {
+      setApiError('Agent name is required to create a new agent.');
+      return;
+    }
+
+    setApiError(null);
+    setIsCreatingAgent(true);
+
+    try {
+      const result = await apiService.createAgent(agentForm.name.trim());
+      const agentKey = result?.agentKey;
+      if (!agentKey) {
+        throw new Error('Agent key was not returned from the API.');
+      }
+
+      setCreatedAgent({
+        name: agentForm.name.trim(),
+        agentKey,
+        backendUrl
+      });
+      setAgentForm({ name: '' });
+      setShowAgentForm(false);
+      await fetchInitialData();
+    } catch (error: any) {
+      setApiError(error?.message || 'Failed to create agent');
+    } finally {
+      setIsCreatingAgent(false);
+    }
   };
 
   const fetchInitialData = async () => {
@@ -449,6 +487,15 @@ const App: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setShowAgentForm((current) => !current)}
+              className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800"
+              title="Create new agent"
+            >
+              <UserPlus className="w-4 h-4" />
+              {showAgentForm ? 'Cancel' : 'New Agent'}
+            </button>
+
+            <button
               onClick={handleLogout}
               className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800"
             >
@@ -457,6 +504,59 @@ const App: React.FC = () => {
             </button>
           </div>
         </header>
+
+        {showAgentForm && (
+          <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/20 mb-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">New agent</p>
+                <h2 className="mt-1 text-xl font-semibold text-white">Create a trusted agent</h2>
+                <p className="mt-2 text-sm text-slate-400 max-w-2xl">
+                  Give your new agent a memorable name and GRIDFLOW will generate a secure key for onboarding.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  onClick={handleCreateAgent}
+                  disabled={isCreatingAgent}
+                  className="inline-flex items-center justify-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isCreatingAgent ? 'Provisioning...' : 'Provision agent'}
+                </button>
+                <button
+                  onClick={() => setShowAgentForm(false)}
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <label className="block rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm font-medium text-slate-300">Agent name</span>
+                <input
+                  value={agentForm.name}
+                  onChange={(event) => setAgentForm({ name: event.target.value })}
+                  className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-cyan-500"
+                  placeholder="web-server-1"
+                />
+              </label>
+            </div>
+          </div>
+        )}
+
+        {createdAgent && (
+          <div className="mb-6">
+            <AgentOnboardingPanel
+              agentName={createdAgent.name}
+              agentKey={createdAgent.agentKey}
+              backendUrl={createdAgent.backendUrl}
+              onClose={() => setCreatedAgent(null)}
+            />
+          </div>
+        )}
 
         {/* Sync API Error banner */}
         {apiError && (

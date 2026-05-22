@@ -5,7 +5,7 @@ import si from 'systeminformation';
 import { logger } from './utils/logger';
 
 const BACKEND_URL = process.env.BACKEND_URL;
-const AGENT_ID = process.env.AGENT_ID;
+const AGENT_KEY = process.env.AGENT_KEY;
 const HOSTNAME = os.hostname();
 
 if (!BACKEND_URL) {
@@ -13,8 +13,8 @@ if (!BACKEND_URL) {
   process.exit(1);
 }
 
-if (!AGENT_ID) {
-  logger.error('CRITICAL CONFIG ERROR: AGENT_ID is not defined in the environment variables! Agent exiting...');
+if (!AGENT_KEY) {
+  logger.error('CRITICAL CONFIG ERROR: AGENT_KEY is not defined in the environment variables! Agent exiting...');
   process.exit(1);
 }
 
@@ -27,7 +27,7 @@ const collectAndSendMetrics = async () => {
     ]);
 
     const payload = {
-      agentId: AGENT_ID,
+      agentKey: AGENT_KEY,
       hostname: HOSTNAME,
       cpu: Math.round(load.currentLoad * 10) / 10,
       memory: Math.round((mem.active / mem.total) * 100 * 10) / 10,
@@ -45,7 +45,7 @@ const collectAndSendMetrics = async () => {
     if (!response.ok) {
       logger.warn(`Failed to send operational telemetry: ${response.statusText}`);
     } else {
-      logger.info(`Telemetry metrics transmitted successfully to backend for ${AGENT_ID} (${HOSTNAME})`);
+      logger.info(`Telemetry metrics transmitted successfully to backend for key ${AGENT_KEY} (${HOSTNAME})`);
     }
   } catch (error: any) {
     logger.error(`Error collecting/transmitting operational metrics: ${error?.message || error}`);

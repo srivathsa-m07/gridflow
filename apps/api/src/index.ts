@@ -12,6 +12,7 @@ import { logger } from './utils/logger';
 import authRoutes from './routes/auth';
 import agentRoutes from './routes/agent';
 import metricsRoutes from './routes/metrics';
+import agentsRoutes from './routes/agents';
 import { authMiddleware } from './middleware/auth';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/metrics', metricsRoutes);
+app.use('/api/agents', agentsRoutes);
 
 // Health check endpoints
 app.get('/api', (req, res) => {
@@ -37,9 +39,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/api/agents', authMiddleware, (req, res) => {
-  res.json(getAgents(req.user?.organizationId));
-});
+// persistent agents are exposed via /api/agents routes
 
 // Centralized Error Handling Middleware
 app.use(errorHandler);

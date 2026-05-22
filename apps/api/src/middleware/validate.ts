@@ -5,11 +5,7 @@ export const validateAgentMetrics = (
   res: Response,
   next: NextFunction
 ) => {
-  const { agentId, hostname, cpu, memory, uptime, organizationId } = req.body;
-
-  if (!agentId || typeof agentId !== 'string') {
-    return res.status(400).json({ error: { message: 'Invalid or missing agentId' } });
-  }
+  const { hostname, cpu, memory, uptime, organizationId } = req.body;
   if (!hostname || typeof hostname !== 'string') {
     return res.status(400).json({ error: { message: 'Invalid or missing hostname' } });
   }
