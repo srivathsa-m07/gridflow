@@ -40,3 +40,11 @@ export interface AgentData {
   isOnline: boolean;
   organizationId?: string;
 }
+
+export interface FeedEvent {
+  id: string;
+  type: 'agent_connected' | 'agent_offline' | 'incident_triggered' | 'agent_provisioned';
+  message: string;
+  timestamp: string;
+  severity?: 'critical' | 'warning' | 'info';
+}

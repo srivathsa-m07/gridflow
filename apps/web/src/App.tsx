@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Cpu, Database, Clock, Activity, ShieldCheck, ShieldAlert, Shield, RefreshCw, LogIn, UserPlus, LogOut } from 'lucide-react';
 import { MetricCard } from './components/MetricCard';
 import { AlertBanner } from './components/AlertBanner';
@@ -6,9 +6,12 @@ import { MetricsChart } from './components/MetricsChart';
 import { IncidentPanel } from './components/IncidentPanel';
 import { InfrastructurePanel } from './components/InfrastructurePanel';
 import { AgentOnboardingPanel } from './components/AgentOnboardingPanel';
+import { AnalyticsPanel } from './components/AnalyticsPanel';
+import { TopologyView } from './components/TopologyView';
+import { ActivityFeed } from './components/ActivityFeed';
 import { apiService } from './services/api';
 import { socketService } from './services/socket';
-import { Metrics, AlertData, IncidentData, AgentData } from './types';
+import { Metrics, AlertData, IncidentData, AgentData, FeedEvent } from './types';
 
 const App: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -23,6 +26,7 @@ const App: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertData[]>([]);
   const [incidents, setIncidents] = useState<IncidentData[]>([]);
   const [agents, setAgents] = useState<AgentData[]>([]);
+  const [activityFeed, setActivityFeed] = useState<FeedEvent[]>([]);
   const [showAgentForm, setShowAgentForm] = useState(false);
   const [agentForm, setAgentForm] = useState({ name: '' });
   const [createdAgent, setCreatedAgent] = useState<{ name: string; agentKey: string; backendUrl: string } | null>(null);
@@ -31,6 +35,8 @@ const App: React.FC = () => {
   const [isSavingSettings, setIsSavingSettings] = useState(false);
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', organizationName: '' });
   const USER_STORAGE_KEY = 'GRIDFLOW_USER_INFO';
+  const previousAgents = useRef<Map<string, AgentData>>(new Map());
+  const initialAgentLoad = useRef(true);
 
   const setStoredUser = (value: typeof user | null) => {
     setUser(value);
@@ -74,6 +80,50 @@ const App: React.FC = () => {
       organizationName: result.user?.organizationName
     };
     setStoredUser(storedUser);
+  };
+
+  const addFeedEvent = (event: FeedEvent) => {
+    setActivityFeed((prev) => [event, ...prev].slice(0, 12));
+  };
+
+  const updateAgentRegistry = (nextAgents: AgentData[]) => {
+    const existingAgents = previousAgents.current;
+
+    if (!initialAgentLoad.current) {
+      nextAgents.forEach((agent) => {
+        const previous = existingAgents.get(agent.agentId);
+
+        if (!previous) {
+          addFeedEvent({
+            id: `feed-${Date.now()}-${agent.agentId}`,
+            type: 'agent_provisioned',
+            message: `New agent provisioned: ${agent.agentId} (${agent.hostname})`,
+            timestamp: new Date().toISOString(),
+            severity: 'info'
+          });
+        } else if (!previous.isOnline && agent.isOnline) {
+          addFeedEvent({
+            id: `feed-${Date.now()}-${agent.agentId}`,
+            type: 'agent_connected',
+            message: `Agent back online: ${agent.agentId} (${agent.hostname})`,
+            timestamp: new Date().toISOString(),
+            severity: 'info'
+          });
+        } else if (previous.isOnline && !agent.isOnline) {
+          addFeedEvent({
+            id: `feed-${Date.now()}-${agent.agentId}`,
+            type: 'agent_offline',
+            message: `Agent offline: ${agent.agentId} (${agent.hostname})`,
+            timestamp: new Date().toISOString(),
+            severity: 'warning'
+          });
+        }
+      });
+    }
+
+    previousAgents.current = new Map(nextAgents.map((agent) => [agent.agentId, agent]));
+    initialAgentLoad.current = false;
+    setAgents(nextAgents);
   };
 
   const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -152,7 +202,7 @@ const App: React.FC = () => {
 
       setHistory(chronHistory);
       setIncidents(incidentsData);
-      setAgents(agentsData);
+      updateAgentRegistry(agentsData);
       setNotificationSettings({
         discordWebhookUrl: notifications?.discordWebhookUrl || '',
         slackWebhookUrl: notifications?.slackWebhookUrl || ''
@@ -237,7 +287,8 @@ const App: React.FC = () => {
     });
 
     socket.on('agent_registry_update', (updatedAgents: AgentData[]) => {
-      setAgents(updatedAgents.filter((agent) => !agent.organizationId || agent.organizationId === user.organizationId));
+      const filteredAgents = updatedAgents.filter((agent) => !agent.organizationId || agent.organizationId === user.organizationId);
+      updateAgentRegistry(filteredAgents);
     });
 
     socket.on('alert', (alertPayload: { type: 'HIGH_CPU'; message: string; organizationId?: string }) => {
@@ -267,6 +318,13 @@ const App: React.FC = () => {
           return prev;
         }
         return [newIncident, ...prev];
+      });
+      addFeedEvent({
+        id: `feed-${newIncident.incidentId}`,
+        type: 'incident_triggered',
+        message: `Incident triggered on ${newIncident.agentId} (${newIncident.hostname}): ${newIncident.message}`,
+        timestamp: new Date().toISOString(),
+        severity: newIncident.severity
       });
     });
 
@@ -601,119 +659,124 @@ const App: React.FC = () => {
         {/* Alert Banner System */}
         <AlertBanner alerts={alerts} onDismiss={handleDismissAlert} />
 
-        {/* Notification Settings */}
-        <section className="rounded-3xl border border-slate-800 bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/20">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Notification settings</p>
-              <h2 className="mt-1 text-xl font-semibold text-white">Incident webhooks</h2>
-              <p className="mt-2 text-sm text-slate-400 max-w-2xl">
-                Configure Discord and Slack webhooks so critical incidents are delivered to your operations team.
+        <main className="space-y-8">
+          <div className="grid gap-8 xl:grid-cols-[1.4fr_0.8fr]">
+            <AnalyticsPanel agents={agents} incidents={incidents} />
+            <ActivityFeed events={activityFeed} />
+          </div>
+
+          <TopologyView agents={agents} incidents={incidents} />
+
+          <section className="rounded-3xl border border-slate-800/90 bg-slate-950/80 p-6 shadow-2xl">
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Live metrics</p>
+                <h2 className="text-2xl font-semibold text-slate-100">Operational telemetry</h2>
+              </div>
+              <p className="text-sm text-slate-400 max-w-2xl">
+                View live health, resource usage, and trends across your organization.
               </p>
             </div>
-            <button
-              onClick={handleSaveNotificationSettings}
-              disabled={isSavingSettings}
-              className="inline-flex items-center justify-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSavingSettings ? 'Saving...' : 'Save webhooks'}
-            </button>
-          </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <label className="block rounded-2xl border border-slate-800 bg-slate-900 p-4">
-              <span className="text-sm font-medium text-slate-300">Discord webhook URL</span>
-              <input
-                value={notificationSettings.discordWebhookUrl}
-                onChange={(event) => setNotificationSettings((prev) => ({ ...prev, discordWebhookUrl: event.target.value }))}
-                className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-500"
-                placeholder="https://discord.com/api/webhooks/..."
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <MetricCard
+                title="CPU Load"
+                value={metrics ? metrics.cpu : '0.0'}
+                unit="%"
+                icon={<Cpu className="w-6 h-6 text-cyan-400" />}
+                gradientClass="from-cyan-500 to-blue-500"
+                showProgress={true}
+                progressValue={metrics ? metrics.cpu : 0}
               />
-            </label>
 
-            <label className="block rounded-2xl border border-slate-800 bg-slate-900 p-4">
-              <span className="text-sm font-medium text-slate-300">Slack webhook URL</span>
-              <input
-                value={notificationSettings.slackWebhookUrl}
-                onChange={(event) => setNotificationSettings((prev) => ({ ...prev, slackWebhookUrl: event.target.value }))}
-                className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-500"
-                placeholder="https://hooks.slack.com/services/..."
+              <MetricCard
+                title="Memory Used"
+                value={metrics ? metrics.memory : '0.0'}
+                unit="%"
+                icon={<Database className="w-6 h-6 text-violet-400" />}
+                gradientClass="from-violet-500 to-purple-500"
+                showProgress={true}
+                progressValue={metrics ? metrics.memory : 0}
               />
-            </label>
-          </div>
-        </section>
 
-        {/* Stats Grid */}
-        <main className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* CPU Card */}
-            <MetricCard
-              title="CPU Load"
-              value={metrics ? metrics.cpu : '0.0'}
-              unit="%"
-              icon={<Cpu className="w-6 h-6 text-cyan-400" />}
-              gradientClass="from-cyan-500 to-blue-500"
-              showProgress={true}
-              progressValue={metrics ? metrics.cpu : 0}
-            />
+              <MetricCard
+                title="System Uptime"
+                value={metrics ? metrics.uptime : '0.0'}
+                unit="hours"
+                icon={<Clock className="w-6 h-6 text-amber-400" />}
+                gradientClass="from-amber-500 to-orange-500"
+                footerText="Continuous operational telemetry"
+              />
+            </div>
 
-            {/* Memory Card */}
-            <MetricCard
-              title="Memory Used"
-              value={metrics ? metrics.memory : '0.0'}
-              unit="%"
-              icon={<Database className="w-6 h-6 text-violet-400" />}
-              gradientClass="from-violet-500 to-purple-500"
-              showProgress={true}
-              progressValue={metrics ? metrics.memory : 0}
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+              <MetricsChart
+                title="CPU Usage History"
+                data={history}
+                dataKey="cpu"
+                color="#06b6d4"
+                gradientId="cpuGrad"
+                bulletColor="bg-cyan-400"
+              />
 
-            {/* Uptime Card */}
-            <MetricCard
-              title="System Uptime"
-              value={metrics ? metrics.uptime : '0.0'}
-              unit="hours"
-              icon={<Clock className="w-6 h-6 text-amber-400" />}
-              gradientClass="from-amber-500 to-orange-500"
-              footerText="Continuous operational telemetry"
-            />
+              <MetricsChart
+                title="Memory Usage History"
+                data={history}
+                dataKey="memory"
+                color="#8b5cf6"
+                gradientId="memGrad"
+                bulletColor="bg-violet-400"
+              />
+            </div>
+          </section>
 
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+            <IncidentPanel incidents={incidents} />
+            <InfrastructurePanel agents={agents} />
           </div>
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            {/* CPU Chart */}
-            <MetricsChart
-              title="CPU Usage History"
-              data={history}
-              dataKey="cpu"
-              color="#06b6d4"
-              gradientId="cpuGrad"
-              bulletColor="bg-cyan-400"
-            />
+          <section className="rounded-3xl border border-slate-800 bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/20">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Notification settings</p>
+                <h2 className="mt-1 text-xl font-semibold text-white">Incident webhooks</h2>
+                <p className="mt-2 text-sm text-slate-400 max-w-2xl">
+                  Configure Discord and Slack webhooks so critical incidents are delivered to your operations team.
+                </p>
+              </div>
+              <button
+                onClick={handleSaveNotificationSettings}
+                disabled={isSavingSettings}
+                className="inline-flex items-center justify-center rounded-2xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSavingSettings ? 'Saving...' : 'Save webhooks'}
+              </button>
+            </div>
 
-            {/* Memory Chart */}
-            <MetricsChart
-              title="Memory Usage History"
-              data={history}
-              dataKey="memory"
-              color="#8b5cf6"
-              gradientId="memGrad"
-              bulletColor="bg-violet-400"
-            />
+            <div className="mt-6 grid gap-4 lg:grid-cols-2">
+              <label className="block rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm font-medium text-slate-300">Discord webhook URL</span>
+                <input
+                  value={notificationSettings.discordWebhookUrl}
+                  onChange={(event) => setNotificationSettings((prev) => ({ ...prev, discordWebhookUrl: event.target.value }))}
+                  className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-500"
+                  placeholder="https://discord.com/api/webhooks/..."
+                />
+              </label>
 
-          </div>
-
-          {/* Infrastructure Overview Panel */}
-          <InfrastructurePanel agents={agents} />
-
-          {/* Incident Intelligence Panel */}
-          <IncidentPanel incidents={incidents} />
-
+              <label className="block rounded-2xl border border-slate-800 bg-slate-900 p-4">
+                <span className="text-sm font-medium text-slate-300">Slack webhook URL</span>
+                <input
+                  value={notificationSettings.slackWebhookUrl}
+                  onChange={(event) => setNotificationSettings((prev) => ({ ...prev, slackWebhookUrl: event.target.value }))}
+                  className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-cyan-500"
+                  placeholder="https://hooks.slack.com/services/..."
+                />
+              </label>
+            </div>
+          </section>
         </main>
-        
+
         {/* Footer */}
         <footer className="pt-8 border-t border-slate-900 text-center text-xs text-slate-600 font-medium">
           GRIDFLOW telemetry client built with React, Vite, Tailwind CSS, Recharts, and Mongoose
