@@ -55,7 +55,7 @@ const collectAndSendMetrics = async () => {
 // Run every 5 seconds
 setInterval(collectAndSendMetrics, 5000);
 
-logger.info(`GRIDFLOW agent ${AGENT_ID} successfully initialized on hostname ${HOSTNAME}`);
+logger.info(`GRIDFLOW agent successfully initialized on hostname ${HOSTNAME}`);
 logger.info(`Streaming telemetry to backend gateway at ${BACKEND_URL} every 5 seconds`);
 
 // Execute once immediately on launch
