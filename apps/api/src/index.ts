@@ -13,6 +13,7 @@ import authRoutes from './routes/auth';
 import agentRoutes from './routes/agent';
 import metricsRoutes from './routes/metrics';
 import agentsRoutes from './routes/agents';
+import settingsRoutes from './routes/settings';
 import { authMiddleware } from './middleware/auth';
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/agent', agentRoutes);
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/agents', agentsRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check endpoints
 app.get('/api', (req, res) => {

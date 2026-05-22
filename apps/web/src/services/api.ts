@@ -84,12 +84,22 @@ export const apiService = {
 
   fetchAgents: async (): Promise<AgentData[]> => {
     return fetchWithAuth('/agents');
-  }
-  ,
+  },
 
   createAgent: async (name: string, hostname?: string) => {
     const body = JSON.stringify({ name, hostname });
     const res = await fetchWithAuth('/agents/create', { method: 'POST', body });
     return res;
+  },
+
+  fetchNotificationSettings: async () => {
+    return fetchWithAuth('/settings/notifications');
+  },
+
+  saveNotificationSettings: async (settings: { discordWebhookUrl: string; slackWebhookUrl: string }) => {
+    return fetchWithAuth('/settings/notifications', {
+      method: 'PUT',
+      body: JSON.stringify(settings)
+    });
   }
 };
