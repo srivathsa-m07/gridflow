@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Bell, Wifi, AlertTriangle, PlusCircle } from 'lucide-react';
+import { Wifi, AlertTriangle, Activity, PlusCircle, Bell } from 'lucide-react';
 import { FeedEvent } from '../types';
 
 interface ActivityFeedProps {
@@ -8,44 +8,57 @@ interface ActivityFeedProps {
 
 const iconForType = (type: FeedEvent['type']) => {
   switch (type) {
-    case 'agent_connected':
-      return <Wifi className="w-4 h-4 text-emerald-400" />;
-    case 'agent_offline':
-      return <AlertTriangle className="w-4 h-4 text-rose-400" />;
-    case 'incident_triggered':
-      return <Activity className="w-4 h-4 text-amber-400" />;
-    case 'agent_provisioned':
-      return <PlusCircle className="w-4 h-4 text-cyan-400" />;
-    default:
-      return <Bell className="w-4 h-4 text-slate-400" />;
+    case 'agent_connected':    return <Wifi className="h-3.5 w-3.5 text-emerald-400" />;
+    case 'agent_offline':      return <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />;
+    case 'incident_triggered': return <Activity className="h-3.5 w-3.5 text-amber-400" />;
+    case 'agent_provisioned':  return <PlusCircle className="h-3.5 w-3.5 text-cyan-400" />;
+    default:                   return <Bell className="h-3.5 w-3.5 text-slate-400" />;
+  }
+};
+
+const bgForType = (type: FeedEvent['type']) => {
+  switch (type) {
+    case 'agent_connected':    return 'bg-emerald-500/10';
+    case 'agent_offline':      return 'bg-rose-500/10';
+    case 'incident_triggered': return 'bg-amber-500/10';
+    case 'agent_provisioned':  return 'bg-cyan-500/10';
+    default:                   return 'bg-slate-800';
   }
 };
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => {
   return (
-    <section className="rounded-3xl border border-slate-800/90 bg-slate-950/80 p-6 shadow-2xl">
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Live activity</p>
-          <h2 className="text-2xl font-semibold text-slate-100">Operational feed</h2>
+    <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="flex items-center gap-2">
+          <Activity className="h-4 w-4 text-slate-400" />
+          <h2 className="text-sm font-semibold text-slate-200">Activity Feed</h2>
         </div>
+        {events.length > 0 && (
+          <span className="text-xs text-slate-500">{events.length} events</span>
+        )}
       </div>
 
       {events.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/70 p-10 text-center text-slate-500">
-          <p className="text-sm font-semibold">No recent operations yet.</p>
-          <p className="mt-2 text-xs text-slate-400">Activity will appear here as agents connect, disconnect, and incidents trigger.</p>
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
+            <Bell className="h-5 w-5 text-slate-600" />
+          </div>
+          <p className="text-sm font-medium text-slate-400">No activity yet</p>
+          <p className="mt-1 text-xs text-slate-600">Events appear as agents connect and incidents trigger</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {events.slice(0, 8).map((event) => (
-            <div key={event.id} className="flex items-start gap-3 rounded-3xl border border-slate-800 bg-slate-900/80 p-4">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950/80 text-slate-200">
+            <div key={event.id} className="flex items-start gap-3 rounded-lg border border-slate-800/60 bg-slate-950/40 p-3">
+              <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${bgForType(event.type)}`}>
                 {iconForType(event.type)}
               </div>
-              <div className="flex-1 text-sm leading-snug">
-                <p className="font-semibold text-slate-100">{event.message}</p>
-                <p className="text-xs text-slate-500 mt-1">{new Date(event.timestamp).toLocaleString()}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-medium text-slate-200 leading-snug">{event.message}</p>
+                <p className="mt-0.5 text-[10px] text-slate-600">
+                  {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </p>
               </div>
             </div>
           ))}

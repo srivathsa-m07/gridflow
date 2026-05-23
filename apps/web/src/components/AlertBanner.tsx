@@ -11,24 +11,24 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ alerts, onDismiss }) =
   if (alerts.length === 0) return null;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {alerts.map((alert) => (
         <div
           key={alert.id}
-          className="flex items-center justify-between p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 shadow-lg hover:shadow-rose-500/5 transition-all duration-300 animate-fadeIn"
+          className="flex items-center justify-between rounded-lg border border-rose-500/20 bg-rose-500/8 px-4 py-3 animate-fadeIn"
         >
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-rose-500 animate-pulse" />
+            <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
             <div>
-              <p className="text-sm font-bold tracking-wide">SYSTEM ALERT: {alert.type}</p>
-              <p className="text-xs text-rose-300/80 mt-0.5">{alert.message} at {alert.timestamp.toLocaleTimeString()}</p>
+              <p className="text-xs font-semibold text-rose-300">{alert.type.replace('_', ' ')}</p>
+              <p className="text-xs text-rose-400/70">{alert.message}</p>
             </div>
           </div>
           <button
             onClick={() => onDismiss(alert.id)}
-            className="p-1 rounded-lg hover:bg-rose-500/20 text-rose-400 hover:text-rose-100 transition-colors"
+            className="ml-4 rounded-md p-1 text-rose-400/60 hover:bg-rose-500/10 hover:text-rose-300 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       ))}

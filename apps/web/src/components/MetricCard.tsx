@@ -19,30 +19,28 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   gradientClass,
   showProgress = false,
   progressValue = 0,
-  footerText
+  footerText,
 }) => {
   return (
-    <div className="relative group bg-slate-900/50 backdrop-blur-md border border-slate-800 hover:border-slate-700/85 transition-all duration-300 rounded-2xl p-6 shadow-xl">
-      <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${gradientClass} rounded-t-2xl opacity-80`} />
+    <div className="relative bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-colors rounded-xl p-5">
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${gradientClass} opacity-60 rounded-t-xl`} />
       <div className="flex items-center justify-between mb-4">
-        <span className="text-slate-400 text-sm font-bold tracking-wider uppercase">{title}</span>
-        {icon}
+        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">{title}</span>
+        <div className="text-slate-500">{icon}</div>
       </div>
-      <div className="flex items-baseline gap-2">
-        <span className="text-4xl font-black tracking-tight">{value}</span>
-        <span className="text-slate-400 font-bold">{unit}</span>
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-3xl font-bold tracking-tight text-slate-100">{value}</span>
+        <span className="text-sm font-medium text-slate-500">{unit}</span>
       </div>
       {showProgress && (
-        <div className="mt-4 w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-          <div 
-            className={`bg-gradient-to-r ${gradientClass} h-full transition-all duration-1000 ease-out`}
+        <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-slate-800">
+          <div
+            className={`h-full bg-gradient-to-r ${gradientClass} transition-all duration-700 ease-out`}
             style={{ width: `${Math.min(100, Math.max(0, progressValue))}%` }}
           />
         </div>
       )}
-      {footerText && (
-        <p className="text-xs text-slate-500 mt-5 font-medium">{footerText}</p>
-      )}
+      {footerText && <p className="mt-4 text-xs text-slate-600">{footerText}</p>}
     </div>
   );
 };

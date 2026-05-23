@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertOctagon, Cpu, Database, BrainCircuit } from 'lucide-react';
+import { AlertOctagon, Cpu, Database, BrainCircuit, ShieldCheck } from 'lucide-react';
 import { IncidentData } from '../types';
 
 interface IncidentPanelProps {
@@ -8,57 +8,68 @@ interface IncidentPanelProps {
 
 export const IncidentPanel: React.FC<IncidentPanelProps> = ({ incidents }) => {
   return (
-    <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/85 rounded-2xl p-6 shadow-2xl mt-8">
-      <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-800/80">
-        <AlertOctagon className="w-6 h-6 text-rose-500" />
-        <h2 className="text-xl font-bold text-slate-200">Incident Intelligence</h2>
+    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+      <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-4">
+        <div className="flex items-center gap-2">
+          <AlertOctagon className="h-4 w-4 text-rose-400" />
+          <h2 className="text-sm font-semibold text-slate-200">Incident Intelligence</h2>
+        </div>
+        {incidents.length > 0 && (
+          <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-xs font-semibold text-rose-400 ring-1 ring-rose-500/20">
+            {incidents.length} open
+          </span>
+        )}
       </div>
 
       {incidents.length === 0 ? (
-        <div className="text-center py-10 text-slate-500 text-sm font-medium">
-          No system incidents detected. Operational status is nominal.
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 ring-1 ring-emerald-500/20">
+            <ShieldCheck className="h-5 w-5 text-emerald-400" />
+          </div>
+          <p className="text-sm font-medium text-slate-300">All systems nominal</p>
+          <p className="mt-1 text-xs text-slate-600">No incidents detected</p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="max-h-[480px] space-y-3 overflow-y-auto pr-1">
           {incidents.map((inc) => (
             <div
               key={inc.incidentId}
-              className="p-5 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-slate-700/80 transition-all duration-300 shadow-md space-y-3"
+              className="rounded-lg border border-slate-800 bg-slate-950/60 p-4 space-y-3"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-rose-500/10 border border-rose-500/35 text-rose-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ring-1 ${
+                      inc.severity === 'critical'
+                        ? 'bg-rose-500/10 text-rose-400 ring-rose-500/20'
+                        : 'bg-amber-500/10 text-amber-400 ring-amber-500/20'
+                    }`}
+                  >
+                    <span className={`h-1 w-1 rounded-full ${inc.severity === 'critical' ? 'bg-rose-400' : 'bg-amber-400'}`} />
                     {inc.severity}
                   </span>
-                  <span className="text-xs text-slate-500 font-bold">
-                    {new Date(inc.timestamp).toLocaleString()}
-                  </span>
+                  <div className="flex items-center gap-1 text-xs text-slate-500">
+                    {inc.type === 'HIGH_CPU' ? (
+                      <Cpu className="h-3 w-3 text-cyan-500" />
+                    ) : (
+                      <Database className="h-3 w-3 text-violet-500" />
+                    )}
+                    <span>{inc.agentId}</span>
+                  </div>
                 </div>
-                
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                  {inc.type === 'HIGH_CPU' ? (
-                    <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-                  ) : (
-                    <Database className="w-3.5 h-3.5 text-violet-400" />
-                  )}
-                  <span>{inc.agentId}</span>
-                  <span className="text-slate-600">({inc.hostname})</span>
-                </div>
+                <span className="shrink-0 text-[10px] text-slate-600">
+                  {new Date(inc.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
 
-              <div className="text-sm font-bold text-slate-200">
-                {inc.message}
-              </div>
+              <p className="text-xs font-medium text-slate-300">{inc.message}</p>
 
               {inc.aiSummary && (
-                <div className="flex items-start gap-2.5 p-3.5 rounded-lg bg-cyan-950/15 border border-cyan-500/15 text-cyan-200 text-xs shadow-inner leading-relaxed animate-fadeIn">
-                  <BrainCircuit className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5 animate-pulse" />
+                <div className="flex items-start gap-2 rounded-lg border border-violet-500/15 bg-violet-950/20 p-3">
+                  <BrainCircuit className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-400" />
                   <div>
-                    <span className="font-extrabold uppercase tracking-wider text-[10px] text-cyan-400 block mb-1">
-                      AI Incident Analyst
-                    </span>
-                    <p className="italic font-medium">{inc.aiSummary}</p>
+                    <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-violet-400">AI Analysis</p>
+                    <p className="text-xs text-slate-400 italic leading-relaxed">{inc.aiSummary}</p>
                   </div>
                 </div>
               )}
