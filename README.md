@@ -156,7 +156,73 @@ GRIDFLOW is fully containerized and configured for production deployment. You ca
 
 ---
 
-## 6. How It Works: Deep Dive
+## 6. Docker Agent Deployment
+
+GRIDFLOW provides a production-ready Docker image for deploying monitoring agents to any infrastructure. The agent is a lightweight Alpine-based container that streams telemetry every 5 seconds.
+
+### One-Line Onboarding Flow
+
+1. **Provision** — Click **New Agent** in the dashboard, assign a name, and copy the generated `AGENT_KEY`.
+2. **Build** — Build the agent image once from the monorepo root:
+   ```bash
+   docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .
+   ```
+3. **Run** — Deploy the container on any server:
+   ```bash
+   docker run -d \
+     --name <agent-name> \
+     --restart=unless-stopped \
+     -e BACKEND_URL="https://your-gridflow-api.com" \
+     -e AGENT_KEY="<your-generated-key>" \
+     gridflow-agent:latest
+   ```
+
+The dashboard generates the exact command (with your key and API URL pre-filled) in the onboarding panel.
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `BACKEND_URL` | ✓ | The GRIDFLOW API endpoint (e.g., `https://gridflow-api.onrender.com`) |
+| `AGENT_KEY` | ✓ | Secure key generated during agent provisioning. Never commit to version control. |
+
+### Local vs Docker
+
+| | Local Dev | Docker |
+|---|---|---|
+| Requires | Node.js 18+, monorepo cloned | Docker only |
+| Command | `AGENT_KEY=... BACKEND_URL=... npm run dev:agent` | `docker run -e ... gridflow-agent:latest` |
+| Use case | Development & testing | Production servers, remote hosts |
+
+### Agent Logs
+
+```bash
+docker logs -f <agent-name>
+```
+
+Expected output:
+```
+[STARTUP] ✓ Agent initialized on hostname: web-server-1
+[STARTUP] ✓ Backend gateway: https://gridflow-api.onrender.com
+[STARTUP] ✓ Telemetry interval: 5 seconds
+[TELEMETRY] ✓ Metrics sent (CPU: 45.2%, Memory: 62.8%)
+```
+
+### Multi-Host Deployment
+
+Deploy the same image on each server with its own provisioned key:
+```bash
+docker run -d --name gridflow-agent-srv1 \
+  -e BACKEND_URL="https://gridflow-api.onrender.com" \
+  -e AGENT_KEY="<srv1-key>" \
+  gridflow-agent:latest
+```
+
+All agents appear in real-time on the GRIDFLOW topology view.
+
+---
+
+## 7. How It Works: Deep Dive
 
 ### Real-time Telemetry Flow
 Rather than continuous polling or database scraping, GRIDFLOW utilizes pushing from agents and real-time broadcasting to clients. When the agent streams data to `/api/agent/metrics`, the gateway processes it, updates the server-side registry, and immediately forwards it down the open Socket.IO connection. The dashboard receives this payload and updates the rolling chart state (restricted to the latest 20 measurements) smoothly.
@@ -176,7 +242,7 @@ GRIDFLOW tracks all telemetry streams inside an active **Agent Registry**.
 
 ---
 
-## 7. Future Roadmaps
+## 8. Future Roadmaps
 
 1. **Structured Metrics Downsampling**: Periodically compress old metrics records inside MongoDB into hourly averages to reduce data footprint.
 2. **System Alert Webhooks**: Integrate Slack, Discord, or custom webhook endpoints to pipe critical incidents directly to operational notification spaces.

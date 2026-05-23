@@ -126,7 +126,8 @@ const App: React.FC = () => {
     setAgents(nextAgents);
   };
 
-  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+  const backendUrl = import.meta.env.VITE_API_URL || '';
+  const backendUrlDisplay = backendUrl || 'http://localhost:3001';
 
   const handleCreateAgent = async () => {
     if (!agentForm.name.trim()) {
@@ -147,7 +148,7 @@ const App: React.FC = () => {
       setCreatedAgent({
         name: agentForm.name.trim(),
         agentKey,
-        backendUrl
+        backendUrl: backendUrlDisplay
       });
       setAgentForm({ name: '' });
       setShowAgentForm(false);

@@ -32,7 +32,7 @@ services:
       dockerfile: apps/agent/Dockerfile
     environment:
       - BACKEND_URL=http://api:3001
-      - AGENT_ID=${AGENT_ID:-gridflow-agent-docker}
+      - AGENT_KEY=${AGENT_KEY}
     restart: always
     depends_on:
       - api
