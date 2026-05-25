@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, Database, Clock, ShieldCheck, ShieldAlert, Shield } from 'lucide-react';
+import { Cpu, Database, Clock, ShieldCheck, ShieldAlert, Shield, Server, ArrowRight } from 'lucide-react';
 import { MetricCard } from '../components/MetricCard';
 import { MetricsChart } from '../components/MetricsChart';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
@@ -15,7 +15,14 @@ interface OverviewPageProps {
   agents: AgentData[];
   activityFeed: FeedEvent[];
   onDismissAlert: (id: string) => void;
+  onNewAgent?: () => void;
 }
+
+const ONBOARDING_STEPS = [
+  { n: '01', title: 'Provision an agent', desc: 'Click "New Agent" in the top bar, give it a name, and copy the generated key.' },
+  { n: '02', title: 'Deploy via Docker', desc: 'Run the generated docker command on any server. No Node.js required.' },
+  { n: '03', title: 'Watch it connect', desc: 'Your agent appears here within seconds and begins streaming telemetry.' },
+];
 
 export const OverviewPage: React.FC<OverviewPageProps> = ({
   metrics,
@@ -25,7 +32,10 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   agents,
   activityFeed,
   onDismissAlert,
+  onNewAgent,
 }) => {
+  const hasAgents = agents.length > 0;
+
   const statusBadge = () => {
     if (!metrics) return null;
     const cfg = {
@@ -42,29 +52,62 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     );
   };
 
+  // Empty state for new organizations with no agents
+  if (!hasAgents && !metrics) {
+    return (
+      <div className="space-y-5">
+        <AlertBanner alerts={alerts} onDismiss={onDismissAlert} />
+
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-10 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 ring-1 ring-slate-700">
+            <Server className="h-6 w-6 text-slate-500" />
+          </div>
+          <h2 className="text-base font-semibold text-slate-200">No agents connected</h2>
+          <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500 leading-relaxed">
+            Create your first monitoring agent to begin infrastructure telemetry collection.
+          </p>
+          {onNewAgent && (
+            <button
+              onClick={onNewAgent}
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition-colors"
+            >
+              Provision your first agent
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          {ONBOARDING_STEPS.map(({ n, title, desc }) => (
+            <div key={n} className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
+              <span className="mb-3 block font-mono text-xl font-bold text-slate-700">{n}</span>
+              <p className="mb-1 text-sm font-semibold text-slate-200">{title}</p>
+              <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
-      {/* Status row */}
       {metrics && (
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-500">
-              Last update: {metrics.formattedTime || '—'} · Agent: <span className="text-slate-300">{metrics.agentId || 'local'}</span>
-            </p>
-          </div>
+          <p className="text-xs text-slate-500">
+            Last update: {metrics.formattedTime || '—'} · Agent: <span className="text-slate-300">{metrics.agentId || 'local'}</span>
+          </p>
           {statusBadge()}
         </div>
       )}
 
       <AlertBanner alerts={alerts} onDismiss={onDismissAlert} />
 
-      {/* Analytics + Feed */}
       <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
         <AnalyticsPanel agents={agents} incidents={incidents} />
         <ActivityFeed events={activityFeed} />
       </div>
 
-      {/* Live metric cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard
           title="CPU Load"
@@ -93,7 +136,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         />
       </div>
 
-      {/* Charts */}
       <div className="grid gap-5 lg:grid-cols-2">
         <MetricsChart
           title="CPU Usage"

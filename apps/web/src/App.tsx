@@ -305,7 +305,8 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
       setHistory(prev => { const u = [...prev, formatted]; return u.length > 20 ? u.slice(1) : u; });
     });
     socket.on('agent_registry_update', (updatedAgents: AgentData[]) => {
-      updateAgentRegistry(updatedAgents.filter(a => !a.organizationId || a.organizationId === user.organizationId));
+      // Backend already sends only this org's agents — no client-side filter needed
+      updateAgentRegistry(updatedAgents);
     });
     socket.on('alert', (payload: { type: 'HIGH_CPU'; message: string; organizationId?: string }) => {
       if (payload.organizationId && payload.organizationId !== user.organizationId) return;
@@ -421,7 +422,8 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
             <Route path="/" element={
               <OverviewPage metrics={metrics} history={history} alerts={alerts}
                 incidents={incidents} agents={agents} activityFeed={activityFeed}
-                onDismissAlert={id => setAlerts(prev => prev.filter(a => a.id !== id))} />
+                onDismissAlert={id => setAlerts(prev => prev.filter(a => a.id !== id))}
+                onNewAgent={() => setShowAgentForm(v => !v)} />
             } />
             <Route path="/topology"      element={<TopologyPage agents={agents} incidents={incidents} />} />
             <Route path="/incidents"     element={<IncidentsPage incidents={incidents} />} />

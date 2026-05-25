@@ -15,6 +15,8 @@ export interface AgentData {
 
 const agentsRegistry = new Map<string, AgentData>();
 
+const INTERNAL_AGENT_IDS = new Set(['backend-self']);
+
 export const updateAgent = (
   agentId: string,
   hostname: string,
@@ -38,11 +40,13 @@ export const updateAgent = (
   };
 
   agentsRegistry.set(agentId, agentData);
-  
-  // Optional: broadcast updated agent registry
+
+  // Only broadcast to org-scoped rooms; internal agents are never pushed to customers
   const io = getIO();
-  if (io) {
-    io.emit('agent_registry_update', Array.from(agentsRegistry.values()));
+  if (io && organizationId && !INTERNAL_AGENT_IDS.has(agentId)) {
+    io.to(organizationId).emit('agent_registry_update',
+      Array.from(agentsRegistry.values()).filter(a => a.organizationId === organizationId)
+    );
   }
 };
 
@@ -69,7 +73,17 @@ export const startAgentOfflineDetection = () => {
     if (registryChanged) {
       const io = getIO();
       if (io) {
-        io.emit('agent_registry_update', Array.from(agentsRegistry.values()));
+        // Broadcast per-org filtered registry; never expose internal agents
+        const orgIds = new Set(
+          Array.from(agentsRegistry.values())
+            .filter(a => a.organizationId && !INTERNAL_AGENT_IDS.has(a.agentId))
+            .map(a => a.organizationId as string)
+        );
+        for (const orgId of orgIds) {
+          io.to(orgId).emit('agent_registry_update',
+            Array.from(agentsRegistry.values()).filter(a => a.organizationId === orgId)
+          );
+        }
       }
     }
   }, 5000); // Check every 5 seconds

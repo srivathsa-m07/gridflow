@@ -18,7 +18,11 @@ router.get('/live', authMiddleware, async (req, res, next) => {
 router.get('/history', authMiddleware, async (req, res, next) => {
   try {
     const orgId = req.user?.organizationId;
-    const history = await Metric.find({ organizationId: orgId }).sort({ timestamp: -1 }).limit(20);
+    if (!orgId) return res.json([]);
+    // Strict match: only records that belong to this org (excludes unscoped backend-self records)
+    const history = await Metric.find({ organizationId: orgId })
+      .sort({ timestamp: -1 })
+      .limit(20);
     res.json(history);
   } catch (error) {
     next(error);
@@ -28,7 +32,11 @@ router.get('/history', authMiddleware, async (req, res, next) => {
 router.get('/incidents', authMiddleware, async (req, res, next) => {
   try {
     const orgId = req.user?.organizationId;
-    const incidents = await Incident.find({ organizationId: orgId }).sort({ timestamp: -1 }).limit(10);
+    if (!orgId) return res.json([]);
+    // Strict match: only incidents that belong to this org
+    const incidents = await Incident.find({ organizationId: orgId })
+      .sort({ timestamp: -1 })
+      .limit(50);
     res.json(incidents);
   } catch (error) {
     next(error);

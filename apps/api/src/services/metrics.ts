@@ -6,6 +6,9 @@ import { processIncidentDetection } from './incidents';
 import { logger } from '../utils/logger';
 import { updateAgent } from './agentRegistry';
 
+// Internal agent IDs that must never be exposed to customer-facing views
+const INTERNAL_AGENT_IDS = new Set(['backend-self']);
+
 export interface SystemMetrics {
   cpu: number;
   memory: number;
@@ -47,6 +50,8 @@ export const handleIncomingMetrics = async (payload: {
   uptime: number;
   organizationId?: string;
 }) => {
+  const isInternal = INTERNAL_AGENT_IDS.has(payload.agentId);
+
   let status: 'healthy' | 'warning' | 'critical' = 'healthy';
   if (payload.cpu > 80 || payload.memory > 80) {
     status = 'critical';
@@ -60,29 +65,33 @@ export const handleIncomingMetrics = async (payload: {
     timestamp: new Date()
   };
 
+  // Internal agents: update registry only, no customer broadcasts, no DB writes
+  if (isInternal) {
+    updateAgent(payload.agentId, payload.hostname, {
+      cpu: payload.cpu,
+      memory: payload.memory,
+      uptime: payload.uptime,
+      status
+    }, payload.organizationId);
+    return enrichedMetrics;
+  }
+
+  // Customer agent: broadcast only to the owning org room
   const io = getIO();
-  if (io) {
-    if (payload.organizationId) {
-      io.to(payload.organizationId).emit('metrics_update', enrichedMetrics);
-    } else {
-      io.emit('metrics_update', enrichedMetrics);
-    }
+  if (io && payload.organizationId) {
+    io.to(payload.organizationId).emit('metrics_update', enrichedMetrics);
 
     if (payload.cpu > 80) {
-      const alertPayload = {
+      io.to(payload.organizationId).emit('alert', {
         type: 'HIGH_CPU',
         message: `High CPU usage detected on agent: ${payload.agentId} (${payload.hostname})`,
         organizationId: payload.organizationId
-      };
-      if (payload.organizationId) {
-        io.to(payload.organizationId).emit('alert', alertPayload);
-      } else {
-        io.emit('alert', alertPayload);
-      }
+      });
     }
   }
 
-  if (mongoose.connection.readyState === 1) {
+  // Persist only org-owned metrics
+  if (mongoose.connection.readyState === 1 && payload.organizationId) {
     try {
       await Metric.create({
         cpu: payload.cpu,
@@ -105,7 +114,7 @@ export const handleIncomingMetrics = async (payload: {
     uptime: payload.uptime,
     status
   }, payload.organizationId);
-  
+
   processIncidentDetection({
     agentId: payload.agentId,
     hostname: payload.hostname,
@@ -121,6 +130,7 @@ export const startSelfMonitoring = () => {
   setInterval(async () => {
     const metrics = await getRealMetrics();
     if (metrics) {
+      // backend-self has no organizationId — kept for internal observability only
       await handleIncomingMetrics({
         agentId: 'backend-self',
         hostname: 'localhost',
