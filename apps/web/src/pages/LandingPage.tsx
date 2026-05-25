@@ -15,9 +15,10 @@ import {
 } from 'lucide-react';
 
 const NAV_LINKS = [
-  { label: 'Features', href: '/features' },
+  { label: 'Features',     href: '/features' },
   { label: 'Architecture', href: '/architecture' },
-  { label: 'Docs', href: '/docs' },
+  { label: 'Docs',         href: '/docs' },
+  { label: 'Pricing',      href: '/pricing' },
 ];
 
 const FEATURES = [
@@ -374,29 +375,57 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800/60 py-12">
+      <footer className="border-t border-slate-800/60 bg-[#080d16] py-14">
         <div className="mx-auto max-w-6xl px-6">
-          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-cyan-500/10 ring-1 ring-cyan-500/30">
-                <Activity className="h-3.5 w-3.5 text-cyan-400" />
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Brand */}
+            <div>
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/30">
+                  <Activity className="h-4 w-4 text-cyan-400" />
+                </div>
+                <span className="text-sm font-bold text-slate-200">GRIDFLOW</span>
               </div>
-              <span className="text-sm font-bold text-slate-300">GRIDFLOW</span>
-              <span className="text-xs text-slate-600">— Real-time Infrastructure Observability</span>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Real-time infrastructure observability for teams that move fast.
+              </p>
+              <p className="mt-4 text-[10px] text-slate-700">Built with React, Express, Socket.IO &amp; Gemini AI</p>
             </div>
-
-            <div className="flex items-center gap-6 text-xs text-slate-500">
-              {NAV_LINKS.map((l) => (
-                <Link key={l.href} to={l.href} className="hover:text-slate-300 transition-colors">
-                  {l.label}
-                </Link>
-              ))}
-              <Link to="/login" className="hover:text-slate-300 transition-colors">Sign in</Link>
+            {/* Product */}
+            <div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-600">Product</p>
+              <ul className="space-y-2">
+                {[{ label: 'Features', href: '/features' }, { label: 'Architecture', href: '/architecture' }, { label: 'Pricing', href: '/pricing' }, { label: 'Docs', href: '/docs' }].map(l => (
+                  <li key={l.href}><Link to={l.href} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">{l.label}</Link></li>
+                ))}
+              </ul>
             </div>
-
-            <p className="text-xs text-slate-600">
-              Built with React, Express, Socket.IO & Gemini AI
-            </p>
+            {/* Platform */}
+            <div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-600">Platform</p>
+              <ul className="space-y-2 text-xs text-slate-500">
+                {['Real-time telemetry', 'AI incident summaries', 'Docker-native agents', 'Multi-tenant isolation'].map(item => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            {/* Trust */}
+            <div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-slate-600">Security</p>
+              <ul className="space-y-2 text-xs text-slate-500">
+                {['TLS-encrypted transport', 'JWT-secured agent keys', 'Organization isolation', 'MongoDB Atlas storage'].map(item => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-800/60 pt-6 sm:flex-row">
+            <p className="text-[10px] text-slate-700">© {new Date().getFullYear()} GRIDFLOW. All rights reserved.</p>
+            <div className="flex items-center gap-5 text-[10px] text-slate-600">
+              <span>Terms of Service</span>
+              <span>Privacy Policy</span>
+              <Link to="/login" className="hover:text-slate-400 transition-colors">Sign in</Link>
+            </div>
           </div>
         </div>
       </footer>
