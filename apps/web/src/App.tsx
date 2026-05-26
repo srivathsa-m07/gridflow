@@ -103,110 +103,110 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
   };
 
   const inputCls = (err: string | null) =>
-    `w-full rounded-lg border bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 ${
-      err ? 'border-rose-500/60 focus:border-rose-500' : 'border-slate-700 focus:border-cyan-500'
+    `w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-stone-800 outline-none transition placeholder:text-stone-300 ${
+      err ? 'border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-50' : 'border-stone-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50'
     }`;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0f1a] bg-dot p-6">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
+    <div className="flex min-h-screen items-center justify-center bg-[#fbfcfa] bg-dot p-6">
+      <div className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-8 shadow-premium-lg">
+        <div className="mb-6 text-center">
           <Link to="/" className="mb-4 inline-flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-500/10 ring-1 ring-cyan-500/30">
-              <Activity className="h-4 w-4 text-cyan-400" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 ring-1 ring-indigo-100">
+              <Activity className="h-4 w-4 text-indigo-600" />
             </div>
-            <span className="text-sm font-bold text-slate-300">GRIDFLOW</span>
+            <span className="text-sm font-bold text-stone-900">GRIDFLOW</span>
           </Link>
-          <h1 className="mt-2 text-xl font-bold text-slate-100">
+          <h1 className="mt-2 text-xl font-bold text-stone-900">
             {view === 'signup' ? 'Create your organization' : 'Sign in to your workspace'}
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-stone-500">
             {view === 'signup' ? 'Free tier — no credit card required.' : 'Access your real-time operations console.'}
           </p>
         </div>
 
         {error && (
-          <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3">
-            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
-            <p className="text-xs text-rose-300">{error}</p>
+          <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" />
+            <p className="text-xs text-rose-800">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            <p className="text-xs text-emerald-300">Authenticated — loading dashboard…</p>
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-250 bg-emerald-50 px-4 py-3">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <p className="text-xs text-emerald-800">Authenticated — loading dashboard…</p>
           </div>
         )}
 
         <form onSubmit={handle} className="space-y-4" noValidate>
           {view === 'signup' && (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Your name</label>
+              <label className="mb-1.5 block text-xs font-semibold text-stone-500">Your name</label>
               <input value={form.name} onChange={set('name')} onBlur={() => touch('name')}
                 className={inputCls(nameErr)} placeholder="Jane Doe" />
-              {nameErr && <p className="mt-1 text-xs text-rose-400">{nameErr}</p>}
+              {nameErr && <p className="mt-1 text-xs text-rose-500">{nameErr}</p>}
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Email address</label>
+            <label className="mb-1.5 block text-xs font-semibold text-stone-500">Email address</label>
             <input type="email" value={form.email} onChange={set('email')} onBlur={() => touch('email')}
               className={inputCls(emailErr)} placeholder="jane@example.com" />
-            {emailErr && <p className="mt-1 text-xs text-rose-400">{emailErr}</p>}
+            {emailErr && <p className="mt-1 text-xs text-rose-500">{emailErr}</p>}
           </div>
 
           {view === 'signup' && (
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Organization name</label>
+              <label className="mb-1.5 block text-xs font-semibold text-stone-500">Organization name</label>
               <input value={form.organizationName} onChange={set('organizationName')} onBlur={() => touch('organizationName')}
                 className={inputCls(orgErr)} placeholder="Acme Inc." />
-              {orgErr && <p className="mt-1 text-xs text-rose-400">{orgErr}</p>}
+              {orgErr && <p className="mt-1 text-xs text-rose-500">{orgErr}</p>}
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Password</label>
+            <label className="mb-1.5 block text-xs font-semibold text-stone-500">Password</label>
             <div className="relative">
               <input type={showPw ? 'text' : 'password'} value={form.password}
                 onChange={set('password')} onBlur={() => touch('password')}
                 className={inputCls(pwErr) + ' pr-10'} placeholder="Min. 8 characters" />
               <button type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            {pwErr && <p className="mt-1 text-xs text-rose-400">{pwErr}</p>}
+            {pwErr && <p className="mt-1 text-xs text-rose-500">{pwErr}</p>}
             {view === 'signup' && form.password.length > 0 && (
               <div className="mt-2 flex items-center gap-2">
                 <div className="flex flex-1 gap-0.5">
                   {[1,2,3,4].map(i => (
-                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${strength.s >= i ? strength.bar : 'bg-slate-800'}`} />
+                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${strength.s >= i ? strength.bar : 'bg-stone-150'}`} />
                   ))}
                 </div>
-                <span className="text-[10px] font-semibold text-slate-500">{strength.label}</span>
+                <span className="text-[10px] font-semibold text-stone-400">{strength.label}</span>
               </div>
             )}
           </div>
 
           <button type="submit" disabled={!canSubmit}
-            className="w-full rounded-lg bg-cyan-500 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="w-full rounded-lg bg-indigo-650 py-2.5 text-sm font-semibold text-white hover:bg-indigo-755 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
             {loading ? 'Please wait…' : view === 'signup' ? 'Create free account' : 'Sign in'}
           </button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-slate-500">
+        <p className="mt-5 text-center text-xs text-stone-500">
           {view === 'signup' ? (
             <>Already have an account?{' '}
-              <button onClick={() => switchView('login')} className="font-semibold text-cyan-400 hover:text-cyan-300">Sign in</button>
+              <button onClick={() => switchView('login')} className="font-semibold text-indigo-600 hover:text-indigo-750 cursor-pointer">Sign in</button>
             </>
           ) : (
             <>New to GRIDFLOW?{' '}
-              <button onClick={() => switchView('signup')} className="font-semibold text-cyan-400 hover:text-cyan-300">Create free account</button>
+              <button onClick={() => switchView('signup')} className="font-semibold text-indigo-600 hover:text-indigo-750 cursor-pointer">Create free account</button>
             </>
           )}
         </p>
-        <p className="mt-3 text-center text-[10px] text-slate-600">
+        <p className="mt-3 text-center text-[10px] text-stone-400">
           By continuing you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>

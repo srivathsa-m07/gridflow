@@ -10,24 +10,24 @@ export const InfrastructurePanel: React.FC<InfrastructurePanelProps> = ({ agents
   const online = agents.filter((a) => a.isOnline).length;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-4">
+    <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-premium animate-fadeIn">
+      <div className="mb-5 flex items-center justify-between border-b border-stone-100 pb-4">
         <div className="flex items-center gap-2">
-          <Server className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-200">Infrastructure</h2>
+          <Server className="h-4 w-4 text-stone-400" />
+          <h2 className="text-sm font-bold text-stone-900">Infrastructure Overview</h2>
         </div>
-        <span className="text-xs text-slate-500">
-          <span className="font-semibold text-slate-300">{online}</span>/{agents.length} online
+        <span className="text-xs text-stone-500 font-semibold">
+          <span className="text-stone-800 font-bold">{online}</span>/{agents.length} online
         </span>
       </div>
 
       {agents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 ring-1 ring-slate-700">
-            <Server className="h-5 w-5 text-slate-600" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 border border-stone-100">
+            <Server className="h-5 w-5 text-stone-400" />
           </div>
-          <p className="text-sm font-medium text-slate-400">No agents registered</p>
-          <p className="mt-1 text-xs text-slate-600">Create an agent to start monitoring</p>
+          <p className="text-sm font-bold text-stone-850">No agents registered</p>
+          <p className="mt-1 text-xs text-stone-400">Create an agent to start monitoring</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -36,37 +36,37 @@ export const InfrastructurePanel: React.FC<InfrastructurePanelProps> = ({ agents
               key={agent.agentId}
               className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
                 agent.isOnline
-                  ? 'border-slate-800 bg-slate-950/40 hover:border-slate-700'
-                  : 'border-rose-900/20 bg-rose-950/10'
+                  ? 'border-stone-200/80 bg-stone-50/15 hover:border-stone-300 shadow-sm'
+                  : 'border-rose-100 bg-rose-50/20'
               }`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${agent.isOnline ? 'bg-emerald-500/10' : 'bg-slate-800'}`}>
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${agent.isOnline ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100'}`}>
                 {agent.isOnline ? (
-                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                  <CheckCircle className="h-4 w-4 text-emerald-600" />
                 ) : (
-                  <WifiOff className="h-4 w-4 text-slate-600" />
+                  <WifiOff className="h-4 w-4 text-rose-500" />
                 )}
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold text-slate-200">{agent.agentId}</p>
-                <p className="truncate text-[10px] text-slate-500">{agent.hostname}</p>
+                <p className="truncate text-xs font-bold text-stone-800">{agent.agentId}</p>
+                <p className="truncate text-[10px] text-stone-500 font-medium">{agent.hostname}</p>
               </div>
 
-              <div className="flex items-center gap-3 text-right">
+              <div className="flex items-center gap-4 text-right">
                 <div>
-                  <p className="text-[10px] text-slate-600">CPU</p>
-                  <p className={`text-xs font-semibold ${agent.cpu > 80 ? 'text-rose-400' : agent.cpu > 50 ? 'text-amber-400' : 'text-slate-300'}`}>
+                  <p className="text-[10px] text-stone-400 font-bold">CPU</p>
+                  <p className={`text-xs font-bold ${agent.cpu > 80 ? 'text-rose-600' : agent.cpu > 50 ? 'text-amber-600' : 'text-stone-700'}`}>
                     {agent.cpu}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-600">MEM</p>
-                  <p className={`text-xs font-semibold ${agent.memory > 80 ? 'text-rose-400' : agent.memory > 50 ? 'text-amber-400' : 'text-slate-300'}`}>
+                  <p className="text-[10px] text-stone-400 font-bold">MEM</p>
+                  <p className={`text-xs font-bold ${agent.memory > 80 ? 'text-rose-600' : agent.memory > 50 ? 'text-amber-600' : 'text-stone-700'}`}>
                     {agent.memory}%
                   </p>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-slate-600">
+                <div className="flex items-center gap-1 text-[10px] text-stone-450 font-semibold">
                   <Clock className="h-3 w-3" />
                   {new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>

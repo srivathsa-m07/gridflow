@@ -8,55 +8,55 @@ interface ActivityFeedProps {
 
 const iconForType = (type: FeedEvent['type']) => {
   switch (type) {
-    case 'agent_connected':    return <Wifi className="h-3.5 w-3.5 text-emerald-400" />;
-    case 'agent_offline':      return <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />;
-    case 'incident_triggered': return <Activity className="h-3.5 w-3.5 text-amber-400" />;
-    case 'agent_provisioned':  return <PlusCircle className="h-3.5 w-3.5 text-cyan-400" />;
-    default:                   return <Bell className="h-3.5 w-3.5 text-slate-400" />;
+    case 'agent_connected':    return <Wifi className="h-3.5 w-3.5 text-emerald-600" />;
+    case 'agent_offline':      return <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />;
+    case 'incident_triggered': return <Activity className="h-3.5 w-3.5 text-amber-600" />;
+    case 'agent_provisioned':  return <PlusCircle className="h-3.5 w-3.5 text-indigo-650" />;
+    default:                   return <Bell className="h-3.5 w-3.5 text-stone-400" />;
   }
 };
 
 const bgForType = (type: FeedEvent['type']) => {
   switch (type) {
-    case 'agent_connected':    return 'bg-emerald-500/10';
-    case 'agent_offline':      return 'bg-rose-500/10';
-    case 'incident_triggered': return 'bg-amber-500/10';
-    case 'agent_provisioned':  return 'bg-cyan-500/10';
-    default:                   return 'bg-slate-800';
+    case 'agent_connected':    return 'bg-emerald-50 border border-emerald-100/60';
+    case 'agent_offline':      return 'bg-rose-50 border border-rose-100/60';
+    case 'incident_triggered': return 'bg-amber-50 border border-amber-100/60';
+    case 'agent_provisioned':  return 'bg-indigo-50 border border-indigo-100/60';
+    default:                   return 'bg-stone-50 border border-stone-200/60';
   }
 };
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => {
   return (
-    <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-4">
+    <div className="rounded-xl border border-stone-200 bg-white p-5 shadow-premium animate-fadeIn">
+      <div className="mb-5 flex items-center justify-between border-b border-stone-100 pb-4">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-200">Activity Feed</h2>
+          <Activity className="h-4 w-4 text-stone-400" />
+          <h2 className="text-sm font-bold text-stone-900">Activity Feed</h2>
         </div>
         {events.length > 0 && (
-          <span className="text-xs text-slate-500">{events.length} events</span>
+          <span className="text-xs text-stone-500 font-semibold">{events.length} events</span>
         )}
       </div>
 
       {events.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800">
-            <Bell className="h-5 w-5 text-slate-600" />
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-stone-50 border border-stone-100 animate-pulse">
+            <Bell className="h-5 w-5 text-stone-400" />
           </div>
-          <p className="text-sm font-medium text-slate-400">No activity yet</p>
-          <p className="mt-1 text-xs text-slate-600">Events appear as agents connect and incidents trigger</p>
+          <p className="text-sm font-bold text-stone-850">No activity yet</p>
+          <p className="mt-1 text-xs text-stone-400">Events appear as agents connect and incidents trigger</p>
         </div>
       ) : (
         <div className="space-y-2">
           {events.slice(0, 8).map((event) => (
-            <div key={event.id} className="flex items-start gap-3 rounded-lg border border-slate-800/60 bg-slate-950/40 p-3">
+            <div key={event.id} className="flex items-start gap-3 rounded-lg border border-stone-100 bg-stone-50/15 p-3 shadow-sm">
               <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${bgForType(event.type)}`}>
                 {iconForType(event.type)}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-slate-200 leading-snug">{event.message}</p>
-                <p className="mt-0.5 text-[10px] text-slate-600">
+                <p className="text-xs font-semibold text-stone-850 leading-normal">{event.message}</p>
+                <p className="mt-0.5 text-[10px] text-stone-450 font-medium">
                   {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </p>
               </div>
@@ -64,6 +64,6 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => {
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 };

@@ -31,10 +31,10 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
   bulletColor,
 }) => {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+    <div className="rounded-xl border border-stone-200/80 bg-white p-5 shadow-premium">
       <div className="mb-5 flex items-center gap-2">
         <span className={`h-2 w-2 rounded-full ${bulletColor}`} />
-        <h3 className="text-sm font-semibold text-slate-200">{title}</h3>
+        <h3 className="text-sm font-bold text-stone-800">{title}</h3>
       </div>
       <div className="h-56 w-full">
         {data.length > 0 ? (
@@ -46,11 +46,11 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
                   <stop offset="95%" stopColor={color} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="formattedTime" stroke="#334155" fontSize={10} tickLine={false} axisLine={false} />
-              <YAxis domain={yDomain} stroke="#334155" fontSize={10} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f0ef" />
+              <XAxis dataKey="formattedTime" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
+              <YAxis domain={yDomain} stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', fontSize: '12px' }}
+                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', boxShadow: '0 4px 12px -2px rgba(0, 0, 0, 0.06)' }}
                 labelStyle={{ color: '#64748b', fontWeight: 600 }}
                 itemStyle={{ color }}
               />
@@ -68,10 +68,10 @@ export const MetricsChart: React.FC<MetricsChartProps> = ({
         ) : (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <div className="mb-2 h-8 w-8 mx-auto rounded-lg bg-slate-800 flex items-center justify-center">
+              <div className="mb-2 h-8 w-8 mx-auto rounded-lg bg-stone-50 border border-stone-100 flex items-center justify-center">
                 <span className={`h-2 w-2 rounded-full ${bulletColor} opacity-40`} />
               </div>
-              <p className="text-xs text-slate-600">Awaiting telemetry</p>
+              <p className="text-xs text-stone-400 font-semibold">Awaiting telemetry</p>
             </div>
           </div>
         )}

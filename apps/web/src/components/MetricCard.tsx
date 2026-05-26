@@ -22,25 +22,26 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   footerText,
 }) => {
   return (
-    <div className="relative bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-colors rounded-xl p-5">
-      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${gradientClass} opacity-60 rounded-t-xl`} />
+    <div className="relative bg-white border border-stone-200/80 hover:border-stone-300 hover:shadow-premium-lg transition-all duration-300 rounded-xl p-5 shadow-premium">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">{title}</span>
-        <div className="text-slate-500">{icon}</div>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-stone-400">{title}</span>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-50 border border-stone-100 text-stone-500">
+          {icon}
+        </div>
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-3xl font-bold tracking-tight text-slate-100">{value}</span>
-        <span className="text-sm font-medium text-slate-500">{unit}</span>
+        <span className="text-3xl font-extrabold tracking-tight text-stone-900">{value}</span>
+        <span className="text-sm font-semibold text-stone-400">{unit}</span>
       </div>
       {showProgress && (
-        <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-slate-800">
+        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
           <div
-            className={`h-full bg-gradient-to-r ${gradientClass} transition-all duration-700 ease-out`}
+            className={`h-full bg-gradient-to-r ${gradientClass} transition-all duration-750 ease-out`}
             style={{ width: `${Math.min(100, Math.max(0, progressValue))}%` }}
           />
         </div>
       )}
-      {footerText && <p className="mt-4 text-xs text-slate-600">{footerText}</p>}
+      {footerText && <p className="mt-4 text-xs text-stone-400">{footerText}</p>}
     </div>
   );
 };
