@@ -133,7 +133,7 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
         )}
 
         {success && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-250 bg-emerald-50 px-4 py-3">
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <p className="text-xs text-emerald-800">Authenticated — loading dashboard…</p>
           </div>
@@ -190,7 +190,7 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
           </div>
 
           <button type="submit" disabled={!canSubmit}
-            className="w-full rounded-lg bg-indigo-650 py-2.5 text-sm font-semibold text-white hover:bg-indigo-755 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+            className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer relative z-10">
             {loading ? 'Please wait…' : view === 'signup' ? 'Create free account' : 'Sign in'}
           </button>
         </form>
@@ -348,15 +348,15 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0a0f1a]">
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="relative flex h-12 w-12 items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-500/20 border-t-cyan-500 animate-spin" />
-            <Activity className="h-5 w-5 text-cyan-400" />
+            <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+            <Activity className="h-5 w-5 text-indigo-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-300">Initializing GRIDFLOW</p>
-            <p className="mt-1 text-xs text-slate-600">Connecting to telemetry gateway…</p>
+            <p className="text-sm font-semibold text-slate-200">Initializing GRIDFLOW</p>
+            <p className="mt-1 text-xs text-slate-500">Connecting to telemetry gateway…</p>
           </div>
         </div>
       </div>
@@ -364,7 +364,7 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
   }
 
   return (
-    <div className="flex min-h-screen bg-[#0a0f1a]">
+    <div className="flex min-h-screen bg-slate-950 text-slate-200">
       <Sidebar user={user} onLogout={onLogout} isConnected={isConnected} />
       <div className="flex flex-1 flex-col pl-60">
         <TopBar
