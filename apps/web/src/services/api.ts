@@ -1,4 +1,4 @@
-import { Metrics, IncidentData, AgentData } from '../types';
+import { Metrics, IncidentData, AgentData, AgentRecord, AgentPendingProvisioning, InstallCommandResponse } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const API_BASE_URL = `${API_URL}/api`;
@@ -86,10 +86,39 @@ export const apiService = {
     return fetchWithAuth('/agents');
   },
 
-  createAgent: async (name: string, hostname?: string) => {
-    const body = JSON.stringify({ name, hostname });
+  createAgent: async (name: string, hostname?: string, backendUrl?: string) => {
+    const body = JSON.stringify({ name, hostname, backendUrl });
     const res = await fetchWithAuth('/agents/create', { method: 'POST', body });
     return res;
+  },
+
+  // Agent Management (Agents page) — see AgentRecord in types/index.ts.
+  listAgents: async (): Promise<AgentRecord[]> => {
+    return fetchWithAuth('/agents');
+  },
+
+  getAgent: async (id: string): Promise<{ agent: AgentRecord; pendingProvisioning: AgentPendingProvisioning | null }> => {
+    return fetchWithAuth(`/agents/${id}`);
+  },
+
+  // Re-generates a fresh, single-use provisioning token and the install
+  // commands that embed it — the same backend endpoint used by the initial
+  // onboarding flow.
+  getInstallCommand: async (id: string, backendUrl?: string): Promise<InstallCommandResponse> => {
+    const query = backendUrl ? `?backendUrl=${encodeURIComponent(backendUrl)}` : '';
+    return fetchWithAuth(`/agents/${id}/install-command${query}`);
+  },
+
+  rotateAgentKey: async (id: string): Promise<{ agent: AgentRecord; agentKey: string }> => {
+    return fetchWithAuth(`/agents/${id}/rotate-key`, { method: 'POST' });
+  },
+
+  revokeAgent: async (id: string): Promise<{ agent: AgentRecord }> => {
+    return fetchWithAuth(`/agents/${id}/revoke`, { method: 'POST' });
+  },
+
+  deleteAgent: async (id: string): Promise<void> => {
+    await fetchWithAuth(`/agents/${id}`, { method: 'DELETE' });
   },
 
   fetchNotificationSettings: async () => {

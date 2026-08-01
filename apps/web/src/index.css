@@ -3,6 +3,27 @@
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Light "marketing" theme */
+  --text: #0f172a;
+  --text-2: #334155;
+  --text-3: #64748b;
+
+  /* Dark "dashboard" theme */
+  --d-bg: #0a0e17;
+  --d-raised: #10151f;
+  --d-overlay: #161c29;
+  --d-border: rgba(255,255,255,0.08);
+  --d-text: #f1f5f9;
+  --d-text-2: #94a3b8;
+  --d-text-3: #64748b;
+
+  /* Shared accent / status colors */
+  --accent: #2563eb;
+  --accent-blue: #2563eb;
+  --ok: #16a34a;
+  --warn: #d97706;
+  --crit: #dc2626;
 }
 
 * {

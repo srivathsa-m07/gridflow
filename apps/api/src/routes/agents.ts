@@ -220,4 +220,25 @@ router.post('/:id/revoke', authMiddleware, async (req, res, next) => {
   }
 });
 
+// Permanently remove an agent record and any outstanding provisioning
+// tokens for it. Unlike revoke (which keeps the record for history), this
+// deletes it outright — there is no AgentEvent audit trail in this
+// milestone, so deletion here is irreversible by design, not an oversight.
+router.delete('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const orgId = req.user?.organizationId;
+    const agent = await Agent.findOneAndDelete({ _id: req.params.id, organizationId: orgId });
+
+    if (!agent) {
+      return res.status(404).json({ error: { message: 'Agent not found' } });
+    }
+
+    await ProvisioningToken.deleteMany({ agentId: agent._id });
+
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

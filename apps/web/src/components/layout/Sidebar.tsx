@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Activity, LayoutDashboard, Server, AlertOctagon, Bell, LogOut, Sparkles, Globe, ArrowUpRight } from 'lucide-react';
+import { Activity, LayoutDashboard, Server, Cpu, AlertOctagon, Bell, LogOut, Sparkles, Globe, ArrowUpRight } from 'lucide-react';
 import { Card } from '../ui/Card';
 
 interface SidebarProps {
@@ -11,6 +11,7 @@ interface SidebarProps {
 
 const NAV = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
+  { to: '/dashboard/agents', icon: Cpu, label: 'Agents' },
   { to: '/dashboard/topology', icon: Server, label: 'Topology' },
   { to: '/dashboard/incidents', icon: AlertOctagon, label: 'Incidents' },
   { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },

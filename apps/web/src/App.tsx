@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { Activity, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 import { Sidebar } from './components/layout/Sidebar';
@@ -21,6 +21,7 @@ import { OverviewPage } from './pages/OverviewPage';
 import { TopologyPage } from './pages/TopologyPage';
 import { IncidentsPage } from './pages/IncidentsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { AgentsPage } from './pages/AgentsPage';
 
 import { apiService } from './services/api';
 import { socketService } from './services/socket';
@@ -218,6 +219,7 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
+  const navigate = useNavigate();
   const [isConnected, setIsConnected]   = useState(false);
   const [isLoading, setIsLoading]       = useState(true);
   const [apiError, setApiError]         = useState<string | null>(null);
@@ -326,12 +328,15 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
     if (!agentFormName.trim()) return;
     setIsCreatingAgent(true);
     try {
-      const result = await apiService.createAgent(agentFormName.trim());
+      const result = await apiService.createAgent(agentFormName.trim(), undefined, backendUrlDisplay);
       if (!result?.agentKey) throw new Error('Agent key not returned');
       setCreatedAgent({ name: agentFormName.trim(), agentKey: result.agentKey, backendUrl: backendUrlDisplay });
       setAgentFormName('');
       setShowAgentForm(false);
       await fetchInitialData();
+      // Provisioning is complete — the Agents page is the permanent home for
+      // managing this (and every other) agent going forward.
+      navigate('/dashboard/agents');
     } catch (err: any) {
       setApiError(err?.message || 'Failed to create agent');
     } finally {
@@ -341,6 +346,7 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
     '/dashboard':              { title: 'Overview',       subtitle: 'Real-time operational telemetry' },
+    '/dashboard/agents':       { title: 'Agents',         subtitle: 'Provisioning, credentials, and lifecycle management' },
     '/dashboard/topology':     { title: 'Topology',       subtitle: 'Infrastructure map and agent status' },
     '/dashboard/incidents':    { title: 'Incidents',      subtitle: 'AI-powered incident intelligence' },
     '/dashboard/notifications':{ title: 'Notifications',  subtitle: 'Webhook configuration' },
@@ -419,6 +425,7 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
                 onDismissAlert={id => setAlerts(prev => prev.filter(a => a.id !== id))}
                 onNewAgent={() => setShowAgentForm(v => !v)} />
             } />
+            <Route path="/agents"        element={<AgentsPage organizationName={user.organizationName} backendUrl={backendUrlDisplay} />} />
             <Route path="/topology"      element={<TopologyPage agents={agents} incidents={incidents} />} />
             <Route path="/incidents"     element={<IncidentsPage incidents={incidents} />} />
             <Route path="/notifications" element={
