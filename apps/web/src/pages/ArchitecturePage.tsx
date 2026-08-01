@@ -1,129 +1,107 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Activity, ArrowLeft, ArrowRight, Server, Database, Zap, BrainCircuit, Globe } from 'lucide-react';
+import { Activity, ArrowRight, BrainCircuit, Database, Globe, Server, Zap } from 'lucide-react';
+import { MarketingShell } from '../components/layout/MarketingShell';
+import { H1, H2, Lead } from '../components/ui/Typography';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 
 const PIPELINE = [
-  { step: '01', icon: Server, color: 'text-indigo-600', title: 'Extraction', desc: 'The telemetry agent uses systeminformation to collect CPU load, resident memory %, and system uptime every 5 seconds.' },
-  { step: '02', icon: Zap, color: 'text-amber-650', title: 'Ingestion & validation', desc: 'The gateway receives payloads via HTTP POST /api/agent/metrics, validates ranges (CPU 0–100%), and authenticates via AGENT_KEY.' },
-  { step: '03', icon: Globe, color: 'text-emerald-600', title: 'Registry enrichment', desc: 'The agent registry updates the agent\'s status (healthy/warning/critical), lastSeen timestamp, and isOnline flag.' },
-  { step: '04', icon: BrainCircuit, color: 'text-violet-600', title: 'Incident & AI processing', desc: 'If thresholds breach, the incident engine checks cooldowns, calls Gemini API, and persists the incident with its AI summary.' },
-  { step: '05', icon: Activity, color: 'text-indigo-650', title: 'Real-time broadcast', desc: 'Metric updates, alerts, and incidents are pushed to all connected dashboards via Socket.IO — no polling required.' },
-  { step: '06', icon: Database, color: 'text-stone-500', title: 'Long-term storage', desc: 'Telemetry records and incidents are persisted in MongoDB Atlas for historical queries and incident review.' },
+  { step: '01', icon: Server, accent: '#38bdf8', title: 'Extraction', desc: 'Agents collect CPU, memory, and uptime every 5 seconds.' },
+  { step: '02', icon: Zap, accent: '#f59e0b', title: 'Ingestion', desc: 'The gateway validates payloads and authenticates via AGENT_KEY.' },
+  { step: '03', icon: Globe, accent: '#34d399', title: 'Registry enrichment', desc: 'Agent status, lastSeen, and health state are updated in real time.' },
+  { step: '04', icon: BrainCircuit, accent: '#a78bfa', title: 'Incident processing', desc: 'Threshold breaches trigger AI summaries and notifications.' },
+  { step: '05', icon: Activity, accent: '#38bdf8', title: 'Real-time broadcast', desc: 'Socket.IO pushes updates to all connected dashboards.' },
+  { step: '06', icon: Database, accent: '#6b7280', title: 'Storage', desc: 'Telemetry and incident data persist in MongoDB Atlas.' },
 ];
 
 const STACK = [
-  { layer: 'Agent', tech: 'Node.js + TypeScript', detail: 'systeminformation, dotenv, fetch' },
-  { layer: 'Gateway', tech: 'Express + Socket.IO', detail: 'Mongoose, JWT, Gemini API' },
-  { layer: 'Database', tech: 'MongoDB Atlas', detail: 'Metrics, Incidents, Agents, Settings' },
-  { layer: 'Dashboard', tech: 'React + Vite', detail: 'Tailwind CSS, Recharts, Socket.IO client' },
-  { layer: 'AI Engine', tech: 'Gemini 1.5 Flash', detail: 'Async incident summarization' },
-  { layer: 'Deployment', tech: 'Docker + Render + Vercel', detail: 'Multi-stage Alpine builds' },
+  { layer: 'Agent', tech: 'Node.js + TypeScript', detail: 'systeminformation, dotenv, lightweight Docker image' },
+  { layer: 'Gateway', tech: 'Express + Socket.IO', detail: 'Authentication, metrics ingestion, AI orchestration' },
+  { layer: 'Database', tech: 'MongoDB Atlas', detail: 'Agents, metrics, incidents, settings' },
+  { layer: 'Dashboard', tech: 'React + Vite', detail: 'Real-time client, charts, topology, notifications' },
+  { layer: 'AI Engine', tech: 'Gemini', detail: 'Asynchronous incident summarization' },
+  { layer: 'Deployment', tech: 'Docker + Render', detail: 'Multi-stage builds with production config' },
 ];
 
-export const ArchitecturePage: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-[#fbfcfa] text-stone-850 font-sans">
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-stone-200/80 bg-[#fbfcfa]/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 ring-1 ring-indigo-100">
-              <Activity className="h-4 w-4 text-indigo-600" />
-            </div>
-            <span className="text-sm font-bold tracking-tight text-stone-900">GRIDFLOW</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-indigo-600 transition-colors">
-              <ArrowLeft className="h-3.5 w-3.5" /> Back
-            </Link>
-            <Link to="/login" className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm">
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
+export const ArchitecturePage: React.FC = () => (
+  <MarketingShell>
+    <section style={{ padding: '88px 0 64px' }}>
+      <div style={{ maxWidth: 760, marginBottom: 40 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--text-3)', marginBottom: 12 }}>System architecture</div>
+        <H1>Designed for resilient telemetry and secure operations.</H1>
+        <Lead style={{ marginTop: 20 }}>GRIDFLOW decouples collection, ingestion, analysis, and presentation so each layer can scale independently.</Lead>
+      </div>
 
-      <div className="mx-auto max-w-4xl px-6 pt-28 pb-24">
-        <div className="mb-14 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-indigo-600">System design</p>
-          <h1 className="text-4xl font-extrabold text-stone-900">Architecture overview</h1>
-          <p className="mx-auto mt-4 max-w-xl text-stone-600">
-            GRIDFLOW uses a decoupled push-based architecture to separate collection, ingestion, and presentation.
-          </p>
-        </div>
-
-        {/* Pipeline */}
-        <div className="mb-12">
-          <h2 className="mb-6 text-lg font-bold text-stone-900">Telemetry pipeline</h2>
-          <div className="space-y-3">
-            {PIPELINE.map(({ step, icon: Icon, color, title, desc }, i) => (
-              <div key={step} className="flex items-start gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-premium">
-                <div className="flex flex-col items-center gap-2">
-                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-stone-50 ring-1 ring-stone-200/60`}>
-                    <Icon className={`h-4 w-4 ${color}`} />
+      <div style={{ display: 'grid', gap: 24 }}>
+        <Card style={{ padding: 24 }}>
+          <H2 style={{ margin: 0 }}>Telemetry pipeline</H2>
+          <div style={{ marginTop: 16, display: 'grid', gap: 14 }}>
+            {PIPELINE.map(({ step, icon: Icon, accent, title, desc }, index) => (
+              <div key={step} style={{ display: 'flex', gap: 14, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <Icon size={16} color={accent} />
                   </div>
-                  {i < PIPELINE.length - 1 && <div className="h-4 w-px bg-stone-250" />}
+                  {index < PIPELINE.length - 1 && <div style={{ width: 2, flex: 1, background: 'rgba(255,255,255,0.04)' }} />}
                 </div>
-                <div className="pt-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-mono text-xs text-stone-400 font-bold">{step}</span>
-                    <h3 className="text-sm font-semibold text-stone-900">{title}</h3>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-3)' }}>{step}</span>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>{title}</div>
                   </div>
-                  <p className="text-sm text-stone-600 leading-relaxed">{desc}</p>
+                  <div style={{ color: 'var(--text-3)', fontSize: 14 }}>{desc}</div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Stack */}
-        <div className="mb-12">
-          <h2 className="mb-6 text-lg font-bold text-stone-900">Technology stack</h2>
-          <div className="overflow-hidden rounded-2xl border border-stone-200 shadow-premium bg-white">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-stone-200 bg-stone-50">
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-widest text-stone-500">Layer</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-widest text-stone-500">Technology</th>
-                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-widest text-stone-500">Details</th>
+        <Card style={{ padding: 24 }}>
+          <H2 style={{ margin: 0 }}>Technology stack</H2>
+          <div style={{ marginTop: 12, overflowX: 'auto', borderRadius: 12, border: '1px solid rgba(255,255,255,0.04)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 680 }}>
+              <thead style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '14px 18px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--text-3)' }}>Layer</th>
+                  <th style={{ textAlign: 'left', padding: '14px 18px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--text-3)' }}>Technology</th>
+                  <th style={{ textAlign: 'left', padding: '14px 18px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--text-3)' }}>Details</th>
                 </tr>
               </thead>
               <tbody>
-                {STACK.map(({ layer, tech, detail }, i) => (
-                  <tr key={layer} className={`border-b border-stone-100 ${i % 2 === 0 ? 'bg-stone-50/20' : ''}`}>
-                    <td className="px-5 py-3.5 font-bold text-stone-850">{layer}</td>
-                    <td className="px-5 py-3.5 font-mono text-xs text-indigo-650 font-semibold">{tech}</td>
-                    <td className="px-5 py-3.5 text-stone-600">{detail}</td>
+                {STACK.map(({ layer, tech, detail }, index) => (
+                  <tr key={layer} style={{ background: index % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
+                    <td style={{ padding: '14px 18px', fontWeight: 700, color: 'var(--text)' }}>{layer}</td>
+                    <td style={{ padding: '14px 18px', fontSize: 12, fontFamily: 'var(--font-mono)', color: '#7dd3fc' }}>{tech}</td>
+                    <td style={{ padding: '14px 18px', color: 'var(--text-3)' }}>{detail}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
+      </div>
 
-        {/* Monorepo */}
-        <div className="mb-12 rounded-2xl border border-stone-200 bg-white p-6 shadow-premium">
-          <h2 className="mb-4 text-lg font-bold text-stone-900">Monorepo structure</h2>
-          <pre className="font-mono text-xs text-stone-600 leading-relaxed overflow-x-auto bg-stone-50/50 p-4 rounded-xl border border-stone-100">{`gridflow/
+      <Card style={{ padding: 24, marginTop: 20 }}>
+        <H2 style={{ margin: 0 }}>Monorepo structure</H2>
+        <pre style={{ marginTop: 12, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-2)', lineHeight: 1.7, overflowX: 'auto', background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 12 }}>
+gridflow/
 ├── apps/
 │   ├── agent/          # Telemetry daemon (Node.js)
 │   ├── api/            # Telemetry gateway (Express + Socket.IO)
 │   └── web/            # Operations console (React + Vite)
 ├── packages/           # Shared workspace packages
 ├── docker-compose.yml  # Full-stack local deployment
-└── tsconfig.base.json  # Shared TypeScript config`}</pre>
-        </div>
+└── tsconfig.base.json  # Shared TypeScript config
+        </pre>
+      </Card>
 
-        <div className="rounded-2xl border border-stone-200 bg-stone-50/50 p-8 text-center shadow-premium">
-          <h3 className="mb-2 text-lg font-bold text-stone-900">See it in action</h3>
-          <p className="mb-6 text-sm text-stone-600">Deploy your first agent and watch the pipeline in real time.</p>
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-premium"
-          >
-            Open dashboard <ArrowRight className="h-4 w-4" />
-          </Link>
+      <Card style={{ padding: 24, marginTop: 20, textAlign: 'center' }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>See it in action</div>
+        <Lead style={{ marginTop: 8, maxWidth: 620, marginLeft: 'auto', marginRight: 'auto' }}>Deploy your first agent and watch the pipeline update in real time.</Lead>
+        <div style={{ marginTop: 14 }}>
+          <Button asLink href="/login" variant="blue">Open dashboard <ArrowRight size={16} /></Button>
         </div>
-      </div>
-    </div>
-  );
-};
+      </Card>
+    </section>
+  </MarketingShell>
+);

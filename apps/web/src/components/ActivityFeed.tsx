@@ -1,69 +1,53 @@
 import React from 'react';
 import { Wifi, AlertTriangle, Activity, PlusCircle, Bell } from 'lucide-react';
 import { FeedEvent } from '../types';
+import { Card } from './ui/Card';
 
-interface ActivityFeedProps {
-  events: FeedEvent[];
-}
+interface ActivityFeedProps { events: FeedEvent[]; }
 
-const iconForType = (type: FeedEvent['type']) => {
-  switch (type) {
-    case 'agent_connected':    return <Wifi className="h-3.5 w-3.5 text-emerald-600" />;
-    case 'agent_offline':      return <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />;
-    case 'incident_triggered': return <Activity className="h-3.5 w-3.5 text-amber-600" />;
-    case 'agent_provisioned':  return <PlusCircle className="h-3.5 w-3.5 text-indigo-650" />;
-    default:                   return <Bell className="h-3.5 w-3.5 text-slate-500" />;
-  }
+const TYPE_CONFIG = {
+  agent_connected:    { icon: Wifi,          color: 'var(--ok)',         bg: 'rgba(16,165,127,0.12)' },
+  agent_offline:      { icon: AlertTriangle, color: 'var(--crit)',       bg: 'rgba(220,38,38,0.12)' },
+  incident_triggered: { icon: Activity,      color: 'var(--warn)',       bg: 'rgba(245,158,11,0.12)' },
+  agent_provisioned:  { icon: PlusCircle,    color: 'var(--accent-blue)', bg: 'rgba(37,99,235,0.12)' },
 };
 
-const bgForType = (type: FeedEvent['type']) => {
-  switch (type) {
-    case 'agent_connected':    return 'bg-emerald-50 border border-emerald-100/60';
-    case 'agent_offline':      return 'bg-rose-50 border border-rose-100/60';
-    case 'incident_triggered': return 'bg-amber-50 border border-amber-100/60';
-    case 'agent_provisioned':  return 'bg-indigo-50 border border-indigo-100/60';
-    default:                   return 'bg-slate-800 border border-slate-800/60';
-  }
-};
+export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => (
+  <Card variant="dark" style={{ padding: 0, display: 'flex', flexDirection: 'column', minHeight: 380 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 22px', borderBottom: '1px solid var(--d-border)' }}>
+      <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--d-text)' }}>Activity</h2>
+      {events.length > 0 && <span style={{ fontSize: 11, color: 'var(--d-text-3)' }}>{events.length} events</span>}
+    </div>
 
-export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => {
-  return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-black/20 animate-fadeIn">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800/50 pb-4">
-        <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-slate-500" />
-          <h2 className="text-sm font-bold text-slate-100">Activity Feed</h2>
+    {events.length === 0 ? (
+      <div style={{ flex: 1, display: 'grid', placeItems: 'center', padding: '40px 20px', color: 'var(--d-text-2)' }}>
+        <div style={{ display: 'grid', placeItems: 'center', width: 52, height: 52, borderRadius: 18, background: 'var(--d-overlay)', marginBottom: 18 }}>
+          <Bell size={20} color='var(--d-text-3)' />
         </div>
-        {events.length > 0 && (
-          <span className="text-xs text-slate-400 font-semibold">{events.length} events</span>
-        )}
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--d-text)' }}>No activity yet</p>
+        <p style={{ margin: '10px 0 0', fontSize: 12, color: 'var(--d-text-3)', textAlign: 'center', maxWidth: 240 }}>Events appear here as agents connect, go offline, and incidents are triggered.</p>
       </div>
-
-      {events.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 border border-slate-800/50 animate-pulse">
-            <Bell className="h-5 w-5 text-slate-500" />
-          </div>
-          <p className="text-sm font-bold text-stone-850">No activity yet</p>
-          <p className="mt-1 text-xs text-slate-500">Events appear as agents connect and incidents trigger</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {events.slice(0, 8).map((event) => (
-            <div key={event.id} className="flex items-start gap-3 rounded-lg border border-slate-800/50 bg-slate-800/15 p-3 shadow-sm">
-              <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${bgForType(event.type)}`}>
-                {iconForType(event.type)}
+    ) : (
+      <div style={{ display: 'grid', gap: 10, padding: '18px 18px 20px' }}>
+        {events.slice(0, 8).map((event) => {
+          const cfg = TYPE_CONFIG[event.type] || { icon: Bell, color: 'var(--d-text-3)', bg: 'var(--d-overlay)' };
+          const Icon = cfg.icon;
+          return (
+            <div
+              key={event.id}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.02)', cursor: 'default' }}
+            >
+              <div style={{ width: 30, minWidth: 30, height: 30, display: 'grid', placeItems: 'center', borderRadius: 12, background: cfg.bg }}>
+                <Icon size={14} color={cfg.color} />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-stone-850 leading-normal">{event.message}</p>
-                <p className="mt-0.5 text-[10px] text-stone-450 font-medium">
-                  {new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                </p>
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--d-text)', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.message}</p>
+                <p style={{ margin: '6px 0 0', fontSize: 11, color: 'var(--d-text-3)' }}>{new Date(event.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+          );
+        })}
+      </div>
+    )}
+  </Card>
+);

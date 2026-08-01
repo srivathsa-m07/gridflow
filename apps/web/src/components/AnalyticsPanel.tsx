@@ -1,6 +1,5 @@
 import React from 'react';
-import { Activity, Server, AlertOctagon, Cpu } from 'lucide-react';
-import { MetricCard } from './MetricCard';
+import { Card } from './ui/Card';
 import { AgentData, IncidentData } from '../types';
 
 interface AnalyticsPanelProps {
@@ -8,61 +7,38 @@ interface AnalyticsPanelProps {
   incidents: IncidentData[];
 }
 
+const Stat: React.FC<{ label: string; value: string | number; accent?: string }> = ({ label, value, accent = 'var(--d-text)' }) => (
+  <div style={{ padding: '18px 20px', borderRight: '1px solid var(--d-border)' }}>
+    <p style={{ margin: 0, marginBottom: 8, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--d-text-3)' }}>{label}</p>
+    <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', color: accent, lineHeight: 1 }}>{value}</span>
+  </div>
+);
+
 export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({ agents, incidents }) => {
-  const activeAgents = agents.filter((a) => a.isOnline).length;
-  const healthyAgents = agents.filter((a) => a.status === 'healthy').length;
-  const criticalAgents = agents.filter((a) => a.status === 'critical').length;
+  const online = agents.filter(a => a.isOnline).length;
+  const healthy = agents.filter(a => a.status === 'healthy').length;
+  const critical = agents.filter(a => a.status === 'critical').length;
   const avgCpu = agents.length ? Math.round(agents.reduce((s, a) => s + a.cpu, 0) / agents.length) : 0;
 
   return (
-    <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800 pb-4">
-        <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-200">Operational Analytics</h2>
+    <Card variant="dark" style={{ overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid var(--d-border)' }}>
+        <div>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--d-text-3)' }}>Fleet overview</p>
+          <h2 style={{ margin: '8px 0 0', fontSize: 16, fontWeight: 700, color: 'var(--d-text)' }}>Operational summary</h2>
         </div>
-        <span className="text-xs text-slate-500">{agents.length} agents registered</span>
+        <span style={{ fontSize: 11, color: 'var(--d-text-3)' }}>{agents.length} registered</span>
       </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-        <MetricCard
-          title="Online"
-          value={activeAgents}
-          unit="agents"
-          icon={<Server className="h-4 w-4" />}
-          gradientClass="from-cyan-500 to-blue-500"
-        />
-        <MetricCard
-          title="Healthy"
-          value={healthyAgents}
-          unit="agents"
-          icon={<Server className="h-4 w-4" />}
-          gradientClass="from-emerald-500 to-teal-500"
-        />
-        <MetricCard
-          title="Critical"
-          value={criticalAgents}
-          unit="agents"
-          icon={<Server className="h-4 w-4" />}
-          gradientClass="from-rose-500 to-orange-500"
-        />
-        <MetricCard
-          title="Incidents"
-          value={incidents.length}
-          unit="open"
-          icon={<AlertOctagon className="h-4 w-4" />}
-          gradientClass="from-rose-500 to-pink-500"
-        />
-        <MetricCard
-          title="Avg CPU"
-          value={avgCpu}
-          unit="%"
-          icon={<Cpu className="h-4 w-4" />}
-          gradientClass="from-cyan-500 to-sky-500"
-          showProgress
-          progressValue={avgCpu}
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))' }}>
+        <Stat label="Online" value={online} accent={online > 0 ? 'var(--ok)' : 'var(--d-text-3)'} />
+        <Stat label="Healthy" value={healthy} accent={healthy > 0 ? 'var(--d-text)' : 'var(--d-text-3)'} />
+        <Stat label="Critical" value={critical} accent={critical > 0 ? 'var(--crit)' : 'var(--d-text-3)'} />
+        <Stat label="Incidents" value={incidents.length} accent={incidents.length > 0 ? 'var(--warn)' : 'var(--d-text-3)'} />
+        <div style={{ padding: '18px 20px' }}>
+          <p style={{ margin: 0, marginBottom: 8, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--d-text-3)' }}>Avg CPU</p>
+          <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', color: avgCpu > 80 ? 'var(--crit)' : avgCpu > 50 ? 'var(--warn)' : 'var(--d-text)', lineHeight: 1 }}>{avgCpu}%</span>
+        </div>
       </div>
-    </section>
+    </Card>
   );
 };

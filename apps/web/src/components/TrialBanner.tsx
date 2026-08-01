@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
+import { Card } from './ui/Card';
 
 interface TrialBannerProps {
   agentCount: number;
@@ -19,59 +20,55 @@ export const TrialBanner: React.FC<TrialBannerProps> = ({ agentCount, incidentCo
   const nearLimit = agentPct >= 80 || incidentPct >= 80;
 
   return (
-    <div className={`mb-5 rounded-xl border px-4 py-3 shadow-sm ${nearLimit ? 'border-amber-250 bg-amber-50/50' : 'border-slate-800 bg-slate-900'}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border ${nearLimit ? 'bg-amber-100 border-amber-200' : 'bg-slate-800 border-stone-150'}`}>
-            <Sparkles className={`h-3.5 w-3.5 ${nearLimit ? 'text-amber-600' : 'text-slate-400'}`} />
+    <Card variant="dark" style={{ padding: 20, marginBottom: 20 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 18, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flex: '1 1 320px' }}>
+          <div style={{ width: 32, height: 32, display: 'grid', placeItems: 'center', borderRadius: 12, background: nearLimit ? 'rgba(245,158,11,0.15)' : 'var(--d-overlay)' }}>
+            <Sparkles size={16} color={nearLimit ? 'var(--warn)' : 'var(--d-text-2)'} />
           </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-bold text-stone-850">Free Tier</span>
-              <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-slate-400 ring-1 ring-stone-200/60">
-                TRIAL
-              </span>
-              {nearLimit && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-amber-200/50">
-                  Approaching limit
-                </span>
-              )}
+          <div style={{ minWidth: 0, display: 'grid', gap: 12 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--d-text)' }}>Free tier</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 10px', borderRadius: 999, background: 'var(--d-overlay)', color: 'var(--d-text-2)', fontSize: 10, fontWeight: 700, border: '1px solid var(--d-border)' }}>TRIAL</span>
+              {nearLimit && <span style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', color: 'var(--warn)', fontSize: 10, fontWeight: 700, border: '1px solid rgba(245,158,11,0.25)' }}>Approaching limit</span>}
             </div>
-            <div className="flex flex-wrap items-center gap-5">
+            <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}>
               <UsageBar label="Agents" used={agentCount} limit={FREE_AGENT_LIMIT} pct={agentPct} />
               <UsageBar label="Incidents" used={incidentCount} limit={FREE_INCIDENT_LIMIT} pct={incidentPct} />
-              <span className="text-xs text-slate-500 font-semibold">20-point rolling history · 1 webhook</span>
+              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--d-text-3)', marginBottom: 6 }}>Retention</span>
+                <span style={{ fontSize: 12, color: 'var(--d-text-3)' }}>20-point rolling metric history · 1 webhook</span>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            to="/pricing"
-            className="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-700 transition shadow-sm"
-          >
-            Upgrade <ArrowRight className="h-3 w-3" />
+
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <Link to="/pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 10, background: 'var(--accent-blue)', color: '#fff', textDecoration: 'none', fontSize: 12, fontWeight: 700 }}>
+            Upgrade <ArrowRight size={14} />
           </Link>
           <button
             onClick={() => setDismissed(true)}
-            className="rounded-md p-1 text-slate-500 hover:text-slate-400 transition-colors cursor-pointer"
+            type="button"
+            style={{ display: 'grid', placeItems: 'center', width: 34, height: 34, borderRadius: 12, border: '1px solid transparent', background: 'var(--d-overlay)', color: 'var(--d-text-2)', cursor: 'pointer' }}
           >
-            <X className="h-3.5 w-3.5" />
+            <X size={16} />
           </button>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 
 const UsageBar: React.FC<{ label: string; used: number; limit: number; pct: number }> = ({ label, used, limit, pct }) => {
-  const color = pct >= 100 ? 'bg-rose-500' : pct >= 80 ? 'bg-amber-500' : 'bg-indigo-600';
+  const barColor = pct >= 100 ? 'var(--crit)' : pct >= 80 ? 'var(--warn)' : 'var(--accent-blue)';
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-slate-400 font-semibold">{label}</span>
-      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-800">
-        <div className={`h-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <span style={{ fontSize: 11, color: 'var(--d-text-3)', minWidth: 56 }}>{label}</span>
+      <div style={{ flex: 1, height: 8, borderRadius: 999, background: 'var(--d-border)' }}>
+        <div style={{ width: `${pct}%`, height: '100%', borderRadius: 999, background: barColor, transition: 'width 0.25s ease' }} />
       </div>
-      <span className="text-xs font-semibold text-slate-400">{used}/{limit}</span>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--d-text-2)' }}>{used}/{limit}</span>
     </div>
   );
 };

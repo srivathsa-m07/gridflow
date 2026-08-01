@@ -1,6 +1,7 @@
 import React from 'react';
 import { Server, WifiOff, CheckCircle2, AlertTriangle, Activity } from 'lucide-react';
 import { AgentData, IncidentData } from '../types';
+import { Card } from './ui/Card';
 
 interface TopologyViewProps {
   agents: AgentData[];
@@ -12,83 +13,71 @@ export const TopologyView: React.FC<TopologyViewProps> = ({ agents, incidents })
   const online = agents.filter((a) => a.isOnline).length;
 
   return (
-    <div className="rounded-xl border border-stone-205 bg-slate-900 p-5 shadow-lg shadow-black/20 animate-fadeIn">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800/50 pb-4">
+    <Card variant="dark" style={{ padding: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, borderBottom: '1px solid var(--d-border)', paddingBottom: 8 }}>
         <div>
-          <h2 className="text-sm font-bold text-slate-100">Infrastructure Topology</h2>
-          <p className="mt-0.5 text-xs text-slate-400 font-semibold">Live agent network map — {online}/{agents.length} nodes active</p>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--d-text)' }}>Infrastructure topology</h2>
+          <p style={{ margin: '6px 0 0', fontSize: 12, color: 'var(--d-text-3)' }}>Live agent map — {online}/{agents.length} nodes online</p>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-800 px-3 py-1 text-xs text-slate-400 font-semibold">
-          <Activity className="h-3 w-3 text-indigo-650 animate-pulse" />
-          Real-time stream
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 999, border: '1px solid var(--d-border)', background: 'var(--d-overlay)', color: 'var(--d-text-2)', fontSize: 11 }}>
+          <Activity size={12} color='var(--accent-blue)' />
+          Real-time
         </div>
       </div>
 
       {agents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-800 py-12 text-center bg-slate-800/20">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 border border-slate-800">
-            <Server className="h-5 w-5 text-slate-500" />
+        <div style={{ borderRadius: 20, border: '1px solid var(--d-border)', background: 'var(--d-overlay)', padding: 34, textAlign: 'center' }}>
+          <div style={{ margin: '0 auto 16px', width: 46, height: 46, borderRadius: 18, background: 'var(--d-bg)', display: 'grid', placeItems: 'center' }}>
+            <Server size={22} color='var(--d-text-2)' />
           </div>
-          <p className="text-sm font-bold text-stone-850">No agents connected</p>
-          <p className="mt-1 text-xs text-slate-500">Create your first agent to populate the topology map</p>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--d-text-2)' }}>No agents connected</p>
+          <p style={{ margin: '8px 0 0', fontSize: 12, color: 'var(--d-text-3)' }}>Create your first agent to populate the topology map.</p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           {agents.map((agent) => {
             const hasIncident = incidentMap.has(agent.agentId);
             return (
               <div
                 key={agent.agentId}
-                className={`rounded-lg border p-4 transition-all ${
-                  hasIncident
-                    ? 'border-rose-250 bg-rose-50/30'
-                    : agent.isOnline
-                    ? 'border-slate-800 bg-slate-800/20 hover:border-stone-300 hover:shadow-sm'
-                    : 'border-slate-800/60 bg-slate-800/30 opacity-60'
-                }`}
+                style={{
+                  borderRadius: 18,
+                  border: '1px solid var(--d-border)',
+                  padding: 18,
+                  background: hasIncident ? 'rgba(220,38,38,0.08)' : agent.isOnline ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)',
+                  opacity: agent.isOnline || hasIncident ? 1 : 0.8,
+                }}
               >
-                <div className="mb-3 flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${agent.isOnline ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-800 border border-slate-800'}`}>
-                      {agent.isOnline ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                      ) : (
-                        <WifiOff className="h-3.5 w-3.5 text-slate-500" />
-                      )}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 36, height: 36, display: 'grid', placeItems: 'center', borderRadius: 14, background: agent.isOnline ? 'rgba(16,185,129,0.12)' : 'var(--d-overlay)' }}>
+                      {agent.isOnline ? <CheckCircle2 size={16} color='var(--ok)' /> : <WifiOff size={16} color='var(--d-text-2)' />}
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-bold text-slate-200">{agent.agentId}</p>
-                      <p className="truncate text-[10px] text-slate-400 font-semibold">{agent.hostname}</p>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--d-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agent.agentId}</p>
+                      <p style={{ margin: '6px 0 0', fontSize: 11, color: 'var(--d-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agent.hostname}</p>
                     </div>
                   </div>
-                  {hasIncident && (
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-rose-500" />
-                  )}
+                  {hasIncident && <AlertTriangle size={18} color='var(--crit)' />}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-md bg-slate-900 border border-slate-800/80 px-2.5 py-2 shadow-sm">
-                    <p className="text-[10px] text-slate-500 font-bold mb-0.5">CPU</p>
-                    <p className={`text-sm font-bold ${agent.cpu > 80 ? 'text-rose-600' : agent.cpu > 50 ? 'text-amber-600' : 'text-slate-300'}`}>
-                      {agent.cpu}%
-                    </p>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{ borderRadius: 16, background: 'var(--d-overlay)', padding: '10px 12px' }}>
+                    <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>CPU</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: agent.cpu > 80 ? 'var(--crit)' : agent.cpu > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.cpu}%</p>
                   </div>
-                  <div className="rounded-md bg-slate-900 border border-slate-800/80 px-2.5 py-2 shadow-sm">
-                    <p className="text-[10px] text-slate-500 font-bold mb-0.5">Memory</p>
-                    <p className={`text-sm font-bold ${agent.memory > 80 ? 'text-rose-600' : agent.memory > 50 ? 'text-amber-600' : 'text-slate-300'}`}>
-                      {agent.memory}%
-                    </p>
+                  <div style={{ borderRadius: 16, background: 'var(--d-overlay)', padding: '10px 12px' }}>
+                    <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>Memory</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: agent.memory > 80 ? 'var(--crit)' : agent.memory > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.memory}%</p>
                   </div>
                 </div>
 
-                <p className="mt-2.5 text-[10px] text-stone-450 font-semibold">
-                  Active {new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                <p style={{ margin: '16px 0 0', fontSize: 11, color: 'var(--d-text-3)' }}>Last seen {new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
             );
           })}
         </div>
       )}
-    </div>
+    </Card>
   );
 };

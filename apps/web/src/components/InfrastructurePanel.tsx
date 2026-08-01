@@ -1,6 +1,7 @@
 import React from 'react';
 import { Server, CheckCircle, WifiOff, Clock } from 'lucide-react';
 import { AgentData } from '../types';
+import { Card } from './ui/Card';
 
 interface InfrastructurePanelProps {
   agents: AgentData[];
@@ -10,71 +11,61 @@ export const InfrastructurePanel: React.FC<InfrastructurePanelProps> = ({ agents
   const online = agents.filter((a) => a.isOnline).length;
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-black/20 animate-fadeIn">
-      <div className="mb-5 flex items-center justify-between border-b border-slate-800/50 pb-4">
-        <div className="flex items-center gap-2">
-          <Server className="h-4 w-4 text-slate-500" />
-          <h2 className="text-sm font-bold text-slate-100">Infrastructure Overview</h2>
+    <Card variant="dark" style={{ padding: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, borderBottom: '1px solid var(--d-border)', paddingBottom: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Server size={16} color='var(--d-text-2)' />
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: 'var(--d-text)' }}>Infrastructure</h2>
         </div>
-        <span className="text-xs text-slate-400 font-semibold">
-          <span className="text-slate-200 font-bold">{online}</span>/{agents.length} online
-        </span>
+        <span style={{ fontSize: 11, color: 'var(--d-text-3)' }}><strong style={{ color: 'var(--d-text)' }}>{online}</strong>/{agents.length} online</span>
       </div>
 
       {agents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 border border-slate-800/50">
-            <Server className="h-5 w-5 text-slate-500" />
+        <div style={{ borderRadius: 18, border: '1px solid var(--d-border)', background: 'var(--d-overlay)', padding: 28, textAlign: 'center' }}>
+          <div style={{ margin: '0 auto 16px', width: 44, height: 44, borderRadius: 18, background: 'var(--d-bg)', display: 'grid', placeItems: 'center' }}>
+            <Server size={20} color='var(--d-text-2)' />
           </div>
-          <p className="text-sm font-bold text-stone-850">No agents registered</p>
-          <p className="mt-1 text-xs text-slate-500">Create an agent to start monitoring</p>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--d-text-2)' }}>No agents registered</p>
+          <p style={{ margin: '8px 0 0', fontSize: 12, color: 'var(--d-text-3)' }}>Create an agent to start monitoring infrastructure.</p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div style={{ display: 'grid', gap: 12 }}>
           {agents.map((agent) => (
             <div
               key={agent.agentId}
-              className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
-                agent.isOnline
-                  ? 'border-slate-800/80 bg-slate-800/15 hover:border-stone-300 shadow-sm'
-                  : 'border-rose-100 bg-rose-50/20'
-              }`}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 14, padding: 16, borderRadius: 18,
+                border: '1px solid var(--d-border)',
+                background: agent.isOnline ? 'rgba(255,255,255,0.03)' : 'rgba(220,38,38,0.08)'
+              }}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${agent.isOnline ? 'bg-emerald-50 border border-emerald-100' : 'bg-rose-50 border border-rose-100'}`}>
-                {agent.isOnline ? (
-                  <CheckCircle className="h-4 w-4 text-emerald-600" />
-                ) : (
-                  <WifiOff className="h-4 w-4 text-rose-500" />
-                )}
+              <div style={{ width: 40, height: 40, display: 'grid', placeItems: 'center', borderRadius: 14, background: agent.isOnline ? 'rgba(16,185,129,0.12)' : 'var(--d-overlay)' }}>
+                {agent.isOnline ? <CheckCircle size={18} color='var(--ok)' /> : <WifiOff size={18} color='var(--d-text-2)' />}
               </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-bold text-slate-200">{agent.agentId}</p>
-                <p className="truncate text-[10px] text-slate-400 font-medium">{agent.hostname}</p>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--d-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agent.agentId}</p>
+                <p style={{ margin: '6px 0 0', fontSize: 11, color: 'var(--d-text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agent.hostname}</p>
               </div>
 
-              <div className="flex items-center gap-4 text-right">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, auto))', gap: 12, textAlign: 'right' }}>
                 <div>
-                  <p className="text-[10px] text-slate-500 font-bold">CPU</p>
-                  <p className={`text-xs font-bold ${agent.cpu > 80 ? 'text-rose-600' : agent.cpu > 50 ? 'text-amber-600' : 'text-slate-300'}`}>
-                    {agent.cpu}%
-                  </p>
+                  <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>CPU</p>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: agent.cpu > 80 ? 'var(--crit)' : agent.cpu > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.cpu}%</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-slate-500 font-bold">MEM</p>
-                  <p className={`text-xs font-bold ${agent.memory > 80 ? 'text-rose-600' : agent.memory > 50 ? 'text-amber-600' : 'text-slate-300'}`}>
-                    {agent.memory}%
-                  </p>
+                  <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>MEM</p>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: agent.memory > 80 ? 'var(--crit)' : agent.memory > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.memory}%</p>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-stone-450 font-semibold">
-                  <Clock className="h-3 w-3" />
-                  {new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                  <Clock size={12} color='var(--d-text-3)' />
+                  <span style={{ fontSize: 10, color: 'var(--d-text-3)' }}>{new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 };

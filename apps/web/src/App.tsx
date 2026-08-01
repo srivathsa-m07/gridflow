@@ -6,12 +6,17 @@ import { Sidebar } from './components/layout/Sidebar';
 import { TopBar } from './components/layout/TopBar';
 import { AgentOnboardingPanel } from './components/AgentOnboardingPanel';
 import { TrialBanner } from './components/TrialBanner';
+import { MarketingShell } from './components/layout/MarketingShell';
+import { Card } from './components/ui/Card';
+import { Button } from './components/ui/Button';
 
 import { LandingPage } from './pages/LandingPage';
 import { FeaturesPage } from './pages/FeaturesPage';
 import { ArchitecturePage } from './pages/ArchitecturePage';
 import { DocsPage } from './pages/DocsPage';
 import { PricingPage } from './pages/PricingPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
 import { OverviewPage } from './pages/OverviewPage';
 import { TopologyPage } from './pages/TopologyPage';
 import { IncidentsPage } from './pages/IncidentsPage';
@@ -103,114 +108,111 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
   };
 
   const inputCls = (err: string | null) =>
-    `w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-stone-800 outline-none transition placeholder:text-stone-300 ${
-      err ? 'border-rose-300 focus:border-rose-500 focus:ring-4 focus:ring-rose-50' : 'border-stone-200 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-50'
-    }`;
+    `input-light${err ? ' error' : ''}`;
+
+  const labelCls = 'block text-[13px] font-medium mb-1.5';
+  const errCls = 'mt-1 text-[12px]';
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#fbfcfa] bg-dot p-6">
-      <div className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-8 shadow-premium-lg">
-        <div className="mb-6 text-center">
-          <Link to="/" className="mb-4 inline-flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-50 ring-1 ring-indigo-100">
-              <Activity className="h-4 w-4 text-indigo-600" />
-            </div>
-            <span className="text-sm font-bold text-stone-900">GRIDFLOW</span>
-          </Link>
-          <h1 className="mt-2 text-xl font-bold text-stone-900">
-            {view === 'signup' ? 'Create your organization' : 'Sign in to your workspace'}
-          </h1>
-          <p className="mt-1 text-xs text-stone-500">
-            {view === 'signup' ? 'Free tier — no credit card required.' : 'Access your real-time operations console.'}
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3">
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500" />
-            <p className="text-xs text-rose-800">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <p className="text-xs text-emerald-800">Authenticated — loading dashboard…</p>
-          </div>
-        )}
-
-        <form onSubmit={handle} className="space-y-4" noValidate>
-          {view === 'signup' && (
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-stone-500">Your name</label>
-              <input value={form.name} onChange={set('name')} onBlur={() => touch('name')}
-                className={inputCls(nameErr)} placeholder="Jane Doe" />
-              {nameErr && <p className="mt-1 text-xs text-rose-500">{nameErr}</p>}
-            </div>
-          )}
-
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold text-stone-500">Email address</label>
-            <input type="email" value={form.email} onChange={set('email')} onBlur={() => touch('email')}
-              className={inputCls(emailErr)} placeholder="jane@example.com" />
-            {emailErr && <p className="mt-1 text-xs text-rose-500">{emailErr}</p>}
-          </div>
-
-          {view === 'signup' && (
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-stone-500">Organization name</label>
-              <input value={form.organizationName} onChange={set('organizationName')} onBlur={() => touch('organizationName')}
-                className={inputCls(orgErr)} placeholder="Acme Inc." />
-              {orgErr && <p className="mt-1 text-xs text-rose-500">{orgErr}</p>}
-            </div>
-          )}
-
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold text-stone-500">Password</label>
-            <div className="relative">
-              <input type={showPw ? 'text' : 'password'} value={form.password}
-                onChange={set('password')} onBlur={() => touch('password')}
-                className={inputCls(pwErr) + ' pr-10'} placeholder="Min. 8 characters" />
-              <button type="button" onClick={() => setShowPw(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer">
-                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-            {pwErr && <p className="mt-1 text-xs text-rose-500">{pwErr}</p>}
-            {view === 'signup' && form.password.length > 0 && (
-              <div className="mt-2 flex items-center gap-2">
-                <div className="flex flex-1 gap-0.5">
-                  {[1,2,3,4].map(i => (
-                    <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${strength.s >= i ? strength.bar : 'bg-stone-150'}`} />
-                  ))}
-                </div>
-                <span className="text-[10px] font-semibold text-stone-400">{strength.label}</span>
+    <MarketingShell>
+      <section style={{ padding: '92px 0 80px' }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: 32, gridTemplateColumns: '1.1fr 0.9fr', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gap: 22, justifyContent: 'start' }}>
+              <div style={{ borderRadius: 24, padding: 28, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p className="overline" style={{ margin: 0, marginBottom: 14, letterSpacing: '0.16em', color: 'var(--text-3)' }}>Authentication</p>
+                <h1 style={{ margin: 0, fontSize: 40, lineHeight: 1.05, fontWeight: 800, color: 'var(--text)' }}>
+                  {view === 'signup' ? 'Create your organization' : 'Sign in to your workspace'}
+                </h1>
+                <p style={{ marginTop: 18, color: 'var(--text-3)', fontSize: 15, lineHeight: 1.8 }}>
+                  {view === 'signup' ? 'Free tier — no credit card required.' : 'Access your real-time operations console with centralized telemetry and alerts.'}
+                </p>
               </div>
-            )}
+              <div style={{ borderRadius: 24, padding: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(56,189,248,0.12)', display: 'grid', placeItems: 'center' }}>
+                    <Activity size={18} color='var(--accent)' />
+                  </div>
+                  <div>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>{view === 'signup' ? 'New workspace' : 'Returning user'}</p>
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--text-3)' }}>Enter your account credentials to continue.</p>
+                  </div>
+                </div>
+                {error && (
+                  <div style={{ marginBottom: 16, padding: '14px 16px', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.24)', borderRadius: 16 }}>
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--crit)' }}>{error}</p>
+                  </div>
+                )}
+                {success && (
+                  <div style={{ marginBottom: 16, padding: '14px 16px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.24)', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <CheckCircle2 size={15} style={{ color: 'var(--ok)' }} />
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--ok)' }}>Authenticated — loading dashboard…</p>
+                  </div>
+                )}
+                <form onSubmit={handle} style={{ display: 'grid', gap: 18 }} noValidate>
+                  {view === 'signup' && (
+                    <div>
+                      <label className={labelCls} style={{ color: 'var(--text-3)' }}>Your name</label>
+                      <input value={form.name} onChange={set('name')} onBlur={() => touch('name')} className={inputCls(nameErr)} placeholder="Jane Doe" />
+                      {nameErr && <p className={errCls} style={{ color: 'var(--crit)' }}>{nameErr}</p>}
+                    </div>
+                  )}
+                  <div>
+                    <label className={labelCls} style={{ color: 'var(--text-3)' }}>Email address</label>
+                    <input type="email" value={form.email} onChange={set('email')} onBlur={() => touch('email')} className={inputCls(emailErr)} placeholder="jane@example.com" />
+                    {emailErr && <p className={errCls} style={{ color: 'var(--crit)' }}>{emailErr}</p>}
+                  </div>
+                  {view === 'signup' && (
+                    <div>
+                      <label className={labelCls} style={{ color: 'var(--text-3)' }}>Organization name</label>
+                      <input value={form.organizationName} onChange={set('organizationName')} onBlur={() => touch('organizationName')} className={inputCls(orgErr)} placeholder="Acme Inc." />
+                      {orgErr && <p className={errCls} style={{ color: 'var(--crit)' }}>{orgErr}</p>}
+                    </div>
+                  )}
+                  <div>
+                    <label className={labelCls} style={{ color: 'var(--text-3)' }}>Password</label>
+                    <div style={{ position: 'relative' }}>
+                      <input type={showPw ? 'text' : 'password'} value={form.password} onChange={set('password')} onBlur={() => touch('password')} className={inputCls(pwErr)} style={{ paddingRight: 44 }} placeholder="Min. 8 characters" />
+                      <button type="button" onClick={() => setShowPw((v) => !v)} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', padding: 0 }}>
+                        {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                      </button>
+                    </div>
+                    {pwErr && <p className={errCls} style={{ color: 'var(--crit)' }}>{pwErr}</p>}
+                    {view === 'signup' && form.password.length > 0 && (
+                      <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ flex: 1, display: 'flex', gap: 4 }}>
+                          {[1, 2, 3, 4].map((i) => (
+                            <div key={i} style={{ flex: 1, height: 4, borderRadius: 999, background: strength.s >= i ? (strength.label === 'Weak' ? 'var(--crit)' : strength.label === 'Fair' ? 'var(--warn)' : 'var(--ok)') : 'rgba(255,255,255,0.06)', transition: 'background 0.2s' }} />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-3)' }}>{strength.label}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Button type="submit" variant="blue" disabled={!canSubmit} style={{ width: '100%', justifyContent: 'center', padding: '12px 0', fontSize: 14 }}>
+                  {loading ? 'Please wait…' : view === 'signup' ? 'Create free account' : 'Sign in'}
+                </Button>
+              </form>
+                <div style={{ marginTop: 16, textAlign: 'center', color: 'var(--text-3)', fontSize: 13 }}>
+                  {view === 'signup' ? (
+                    <>Already have an account?{' '}
+                      <button onClick={() => switchView('login')} type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-blue)', fontWeight: 700, padding: 0 }}>Sign in</button>
+                    </>
+                  ) : (
+                    <>New to GRIDFLOW?{' '}
+                      <button onClick={() => switchView('signup')} type="button" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-blue)', fontWeight: 700, padding: 0 }}>Create free account</button>
+                    </>
+                  )}
+                </div>
+                <p style={{ marginTop: 20, textAlign: 'center', fontSize: 12, color: 'var(--text-3)' }}>
+                  By continuing you agree to our <Link to="/terms" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Terms</Link> and <Link to="/privacy" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Privacy Policy</Link>.
+                </p>
+              </div>
+            </div>
           </div>
-
-          <button type="submit" disabled={!canSubmit}
-            className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer relative z-10">
-            {loading ? 'Please wait…' : view === 'signup' ? 'Create free account' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className="mt-5 text-center text-xs text-stone-500">
-          {view === 'signup' ? (
-            <>Already have an account?{' '}
-              <button onClick={() => switchView('login')} className="font-semibold text-indigo-600 hover:text-indigo-750 cursor-pointer">Sign in</button>
-            </>
-          ) : (
-            <>New to GRIDFLOW?{' '}
-              <button onClick={() => switchView('signup')} className="font-semibold text-indigo-600 hover:text-indigo-750 cursor-pointer">Create free account</button>
-            </>
-          )}
-        </p>
-        <p className="mt-3 text-center text-[10px] text-stone-400">
-          By continuing you agree to our Terms of Service and Privacy Policy.
-        </p>
-      </div>
-    </div>
+        </div>
+      </section>
+    </MarketingShell>
   );
 };
 
@@ -348,25 +350,23 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <div className="relative flex h-12 w-12 items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
-            <Activity className="h-5 w-5 text-indigo-400" />
+      <div style={{ minHeight: '100vh', background: 'var(--d-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: 40, height: 40, margin: '0 auto 16px' }}>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(37,99,235,0.15)', borderTopColor: 'var(--accent-blue)', animation: 'spin 0.8s linear infinite' }} />
+            <Activity size={16} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: 'var(--accent-blue)' }} />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-200">Initializing GRIDFLOW</p>
-            <p className="mt-1 text-xs text-slate-500">Connecting to telemetry gateway…</p>
-          </div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--d-text-2)', margin: '0 0 4px' }}>Initializing GRIDFLOW</p>
+          <p style={{ fontSize: 12, color: 'var(--d-text-3)', margin: 0 }}>Connecting to telemetry gateway…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-200">
+    <div className="dark-scroll" style={{ display: 'flex', minHeight: '100vh', background: 'var(--d-bg)' }}>
       <Sidebar user={user} onLogout={onLogout} isConnected={isConnected} />
-      <div className="flex flex-1 flex-col pl-60">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: 224 }}>
         <TopBar
           title={pageInfo.title}
           subtitle={pageInfo.subtitle}
@@ -374,47 +374,41 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
           onRefresh={fetchInitialData}
           onNewAgent={() => setShowAgentForm(v => !v)}
         />
-        <main className="flex-1 overflow-y-auto p-6">
-          {/* Trial banner — overview only */}
+        <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
           {isFreePlan && window.location.pathname === '/dashboard' && (
             <TrialBanner agentCount={agents.length} incidentCount={incidents.length} />
           )}
 
-          {/* Agent creation form */}
           {showAgentForm && (
-            <div className="mb-5 rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-              <h3 className="mb-1 text-sm font-semibold text-slate-200">Provision new agent</h3>
-              <p className="mb-4 text-xs text-slate-500">Assign a name and GRIDFLOW will generate a secure key for deployment.</p>
-              <div className="flex items-center gap-3">
+            <Card variant="dark" style={{ marginBottom: 20, padding: '20px 24px' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--d-text)', margin: '0 0 4px' }}>Provision new agent</p>
+              <p style={{ fontSize: 12, color: 'var(--d-text-3)', margin: '0 0 16px' }}>Assign a name and GRIDFLOW will generate a secure key for deployment.</p>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                 <input value={agentFormName} onChange={e => setAgentFormName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleCreateAgent()}
-                  className="flex-1 rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-500 placeholder:text-slate-600"
-                  placeholder="e.g. prod-web-01" />
-                <button onClick={handleCreateAgent} disabled={isCreatingAgent || !agentFormName.trim()}
-                  className="rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  style={{ flex: 1, minWidth: 220, borderRadius: 12, border: '1px solid var(--d-border)', background: 'var(--d-raised)', color: 'var(--d-text)', padding: '12px 14px', fontSize: 14 }} placeholder="e.g. prod-web-01" />
+                <Button variant="blue" onClick={handleCreateAgent} disabled={isCreatingAgent || !agentFormName.trim()} style={{ whiteSpace: 'nowrap' }}>
                   {isCreatingAgent ? 'Provisioning…' : 'Provision'}
-                </button>
+                </Button>
                 <button onClick={() => setShowAgentForm(false)}
-                  className="rounded-lg border border-slate-700 px-4 py-2.5 text-sm text-slate-400 hover:text-slate-200 transition-colors">
+                  style={{ background: 'none', border: '1px solid var(--d-border)', borderRadius: 8, padding: '8px 16px', fontSize: 13, color: 'var(--d-text-2)', cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>
-            </div>
+            </Card>
           )}
 
           {createdAgent && (
-            <div className="mb-5">
+            <div style={{ marginBottom: 20 }}>
               <AgentOnboardingPanel agentName={createdAgent.name} agentKey={createdAgent.agentKey}
                 backendUrl={createdAgent.backendUrl} onClose={() => setCreatedAgent(null)} />
             </div>
           )}
 
           {apiError && (
-            <div className="mb-5 flex items-center justify-between rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-3">
-              <p className="text-xs text-rose-300"><span className="font-semibold">Connection error:</span> {apiError}</p>
-              <button onClick={fetchInitialData} className="ml-4 rounded-md bg-rose-500/10 px-3 py-1 text-xs font-semibold text-rose-300 hover:bg-rose-500/20 transition-colors">
-                Retry
-              </button>
+            <div style={{ marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.2)', borderRadius: 8, padding: '10px 16px' }}>
+              <p style={{ fontSize: 13, color: '#fca5a5', margin: 0 }}><strong>Connection error:</strong> {apiError}</p>
+              <button onClick={fetchInitialData} style={{ background: 'rgba(220,38,38,0.12)', border: 'none', borderRadius: 6, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: '#fca5a5', cursor: 'pointer' }}>Retry</button>
             </div>
           )}
 
@@ -468,6 +462,8 @@ const Root: React.FC = () => {
         <Route path="/architecture" element={<ArchitecturePage />} />
         <Route path="/docs"         element={<DocsPage />} />
         <Route path="/pricing"      element={<PricingPage />} />
+        <Route path="/privacy"      element={<PrivacyPage />} />
+        <Route path="/terms"        element={<TermsPage />} />
         <Route path="/login"        element={user ? <Navigate to="/dashboard" replace /> : <AuthPage onAuth={handleAuth} />} />
         <Route path="/dashboard/*"  element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
         <Route path="*"             element={<Navigate to="/" replace />} />

@@ -6,6 +6,7 @@ import { connectDB } from './config/db';
 import { initSocket } from './sockets/socket';
 import { startSelfMonitoring } from './services/metrics';
 import { getAgents, startAgentOfflineDetection } from './services/agentRegistry';
+import { startAgentLifecycleSweep } from './services/agentLifecycle';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
 
@@ -51,6 +52,7 @@ connectDB().then(() => {
   // Start telemetry loops
   startSelfMonitoring();
   startAgentOfflineDetection();
+  startAgentLifecycleSweep();
 
   httpServer.listen(env.PORT, () => {
     logger.info(`GRIDFLOW API server successfully booted on port ${env.PORT} [${env.NODE_ENV}]`);

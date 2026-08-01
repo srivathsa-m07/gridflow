@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CheckCircle2, X, Copy, Check, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2, Copy, X } from 'lucide-react';
+import { Card } from './ui/Card';
 
 interface AgentOnboardingPanelProps {
   agentName: string;
@@ -12,7 +13,7 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
   agentName,
   agentKey,
   backendUrl,
-  onClose
+  onClose,
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -25,11 +26,8 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
   -e BACKEND_URL="${backendUrl}" \\
   -e AGENT_KEY="${agentKey}" \\
   gridflow-agent:latest`;
-
   const dockerSimple = `docker run -e BACKEND_URL="${backendUrl}" -e AGENT_KEY="${agentKey}" gridflow-agent:latest`;
-
   const buildCommand = `docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .`;
-
   const localCommand = `AGENT_KEY="${agentKey}" BACKEND_URL="${backendUrl}" npm run dev:agent`;
 
   const copyToClipboard = async (value: string, field: string) => {
@@ -42,146 +40,124 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
     }
   };
 
-  const CopyButton = ({ value, field }: { value: string; field: string }) => (
-    <button
-      onClick={() => copyToClipboard(value, field)}
-      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-        copiedField === field
-          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-          : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20'
-      }`}
-    >
-      {copiedField === field ? (
-        <><Check className="w-3 h-3" />Copied</>
-      ) : (
-        <><Copy className="w-3 h-3" />Copy</>
-      )}
-    </button>
-  );
+  const renderCopyButton = (value: string, field: string) => {
+    const active = copiedField === field;
+    return (
+      <button
+        onClick={() => copyToClipboard(value, field)}
+        type="button"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          borderRadius: 14,
+          padding: '10px 14px',
+          fontSize: 13,
+          fontWeight: 600,
+          border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(37,99,235,0.2)'}`,
+          background: active ? 'rgba(16,185,129,0.12)' : 'rgba(37,99,235,0.1)',
+          color: active ? 'var(--ok)' : 'var(--accent-blue)',
+          cursor: 'pointer',
+        }}
+      >
+        {active ? <><Check size={14} />Copied</> : <><Copy size={14} />Copy</>}
+      </button>
+    );
+  };
 
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-950/95 p-6 shadow-2xl shadow-slate-950/20">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <div className="flex items-center gap-2 text-emerald-300 font-semibold uppercase tracking-[0.24em] mb-2">
-            <CheckCircle2 className="w-5 h-5" />
-            Agent Provisioned
+    <Card variant="dark" style={{ padding: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, marginBottom: 24, flexWrap: 'wrap' }}>
+        <div style={{ minWidth: 0, flex: '1 1 420px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textTransform: 'uppercase', fontSize: 11, fontWeight: 700, letterSpacing: '0.18em', color: 'var(--ok)' }}>
+            <CheckCircle2 size={18} />
+            Agent provisioned
           </div>
-          <h2 className="text-2xl font-bold text-white">Deploy your agent</h2>
-          <p className="mt-2 text-sm text-slate-400 max-w-2xl">
-            Your agent <strong className="text-slate-200">{agentName}</strong> is configured and ready to connect. Choose your deployment method below.
-          </p>
+          <h2 style={{ margin: '14px 0 10px', fontSize: 22, fontWeight: 700, color: 'var(--d-text)' }}>Deploy your agent</h2>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--d-text-2)', maxWidth: 720 }}>Your agent <strong style={{ color: 'var(--d-text)' }}>{agentName}</strong> is configured and ready to connect. Choose your deployment method below.</p>
         </div>
         <button
           onClick={onClose}
-          className="rounded-full border border-slate-700 bg-slate-900 p-2 text-slate-300 hover:bg-slate-800 transition"
+          type="button"
+          style={{
+            border: '1px solid var(--d-border)',
+            borderRadius: 999,
+            background: 'var(--d-overlay)',
+            color: 'var(--d-text-2)',
+            padding: 10,
+            cursor: 'pointer',
+          }}
           title="Dismiss"
         >
-          <X className="w-4 h-4" />
+          <X size={16} />
         </button>
       </div>
 
       {isLocalhostUrl && (
-        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
-          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-amber-400" />
-          <span>
-            <strong>Backend URL is set to localhost.</strong> The Docker commands below will only work on this machine.
-            For remote agents, set <code className="text-amber-300">VITE_API_URL</code> to your deployed API URL (e.g.{' '}
-            <code className="text-amber-300">https://gridflow-api.onrender.com</code>) and redeploy the dashboard.
-          </span>
+        <div style={{ marginBottom: 20, padding: 18, borderRadius: 18, border: '1px solid rgba(217,119,6,0.18)', background: 'rgba(217,119,6,0.08)', color: 'var(--warn)' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <AlertTriangle size={18} />
+            <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}><strong>Backend URL is set to localhost.</strong> The Docker commands below will only work on this machine. For remote agents, set <code style={{ color: 'var(--warn)' }}>VITE_API_URL</code> to your deployed API URL and redeploy the dashboard.</p>
+          </div>
         </div>
       )}
 
-      <div className="space-y-5">
-        {/* Agent Key */}
-        <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold">Agent Key</p>
-            <CopyButton value={agentKey} field="key" />
+      <div style={{ display: 'grid', gap: 20 }}>
+        <Card variant="darkOverlay" style={{ padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Agent key</span>
+            {renderCopyButton(agentKey, 'key')}
           </div>
-          <div className="bg-slate-950 rounded-2xl p-4 font-mono text-xs text-slate-300 break-all border border-slate-800">
+          <div style={{ background: 'var(--d-bg)', border: '1px solid var(--d-border)', borderRadius: 16, padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', wordBreak: 'break-all' }}>
             {agentKey}
           </div>
-          <p className="mt-3 text-xs text-slate-500">
-            This key authenticates your agent with GRIDFLOW. Keep it secret — never commit it to version control.
-          </p>
-        </div>
+          <p style={{ marginTop: 14, fontSize: 12, color: 'var(--d-text-3)' }}>This key authenticates your agent with GRIDFLOW. Keep it secure and do not commit it to source control.</p>
+        </Card>
 
-        {/* Docker Deployment */}
-        <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold mb-1">Docker Deployment</p>
-          <p className="text-xs text-slate-500 mb-4">
-            Run the agent as a container on any server with Docker installed. No Node.js required.
-          </p>
-
-          <div className="space-y-4">
-            {/* Step 1: Build */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-slate-400 font-medium">
-                  <span className="text-cyan-400 font-bold mr-1">Step 1</span> Build the agent image (from monorepo root)
-                </p>
-                <CopyButton value={buildCommand} field="build" />
+        <Card variant="darkOverlay" style={{ padding: 20 }}>
+          <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Docker deployment</p>
+          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent as a container on any server with Docker installed. No Node.js required.</p>
+          <div style={{ display: 'grid', gap: 20 }}>
+            {[
+              { label: 'Step 1', title: 'Build the agent image', command: buildCommand },
+              { label: 'Step 2a', title: 'Run quick start (foreground)', command: dockerSimple },
+              { label: 'Step 2b', title: 'Production run (daemon)', command: dockerCommand },
+            ].map((item) => (
+              <div key={item.label}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                  <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}><span style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>{item.label}</span> {item.title}</p>
+                  {renderCopyButton(item.command, item.label)}
+                </div>
+                <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+                  <code>{item.command}</code>
+                </pre>
               </div>
-              <pre className="bg-slate-950 rounded-2xl p-4 font-mono text-xs text-slate-300 overflow-x-auto border border-slate-800">
-                <code>{buildCommand}</code>
-              </pre>
-            </div>
-
-            {/* Step 2: Run (quick) */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-slate-400 font-medium">
-                  <span className="text-cyan-400 font-bold mr-1">Step 2a</span> Quick start (foreground)
-                </p>
-                <CopyButton value={dockerSimple} field="docker-simple" />
-              </div>
-              <pre className="bg-slate-950 rounded-2xl p-4 font-mono text-xs text-slate-300 overflow-x-auto border border-slate-800">
-                <code>{dockerSimple}</code>
-              </pre>
-            </div>
-
-            {/* Step 2: Run (production) */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-slate-400 font-medium">
-                  <span className="text-cyan-400 font-bold mr-1">Step 2b</span> Production (daemon + auto-restart)
-                </p>
-                <CopyButton value={dockerCommand} field="docker-full" />
-              </div>
-              <pre className="bg-slate-950 rounded-2xl p-4 font-mono text-xs text-slate-300 overflow-x-auto border border-slate-800 whitespace-pre-wrap">
-                <code>{dockerCommand}</code>
-              </pre>
-            </div>
+            ))}
           </div>
-        </div>
+        </Card>
 
-        {/* Local Development */}
-        <div className="rounded-3xl border border-slate-700 bg-slate-900 p-5">
-          <p className="text-xs uppercase tracking-[0.24em] text-slate-400 font-semibold mb-1">Local Development</p>
-          <p className="text-xs text-slate-500 mb-4">
-            Run the agent from source. Requires Node.js 18+ and <code>npm install</code> from the monorepo root.
-          </p>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-slate-400 font-medium">Set env vars and start</p>
-            <CopyButton value={localCommand} field="local" />
+        <Card variant="darkOverlay" style={{ padding: 20 }}>
+          <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Local development</p>
+          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent from source. Requires Node.js 18+ and <code style={{ color: 'var(--d-text-2)' }}>npm install</code> from the monorepo root.</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}>Set env vars and start</p>
+            {renderCopyButton(localCommand, 'local')}
           </div>
-          <pre className="bg-slate-950 rounded-2xl p-4 font-mono text-xs text-slate-300 overflow-x-auto border border-slate-800 whitespace-pre-wrap">
+          <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
             <code>{localCommand}</code>
           </pre>
-        </div>
+        </Card>
 
-        {/* Next Steps */}
-        <div className="rounded-3xl border border-slate-700/50 bg-slate-900/50 p-4">
-          <p className="text-xs font-semibold text-slate-300 mb-2">What happens next</p>
-          <ul className="text-xs text-slate-400 space-y-1.5">
-            <li>✓ Agent starts streaming telemetry every 5 seconds</li>
-            <li>✓ It appears as <strong className="text-slate-300">online</strong> in the Topology and Infrastructure views</li>
-            <li>✓ Incidents trigger automatically when CPU or Memory exceeds 80%</li>
-            <li>✓ Configure webhook notifications in the settings panel below</li>
+        <Card variant="darkOverlay" style={{ padding: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: 'var(--d-text-3)', marginBottom: 12 }}>What happens next</p>
+          <ul style={{ margin: 0, paddingLeft: 18, color: 'var(--d-text-2)', fontSize: 13, lineHeight: 1.7 }}>
+            <li>✓ Agent starts streaming telemetry every 5 seconds.</li>
+            <li>✓ It appears as <strong style={{ color: 'var(--d-text)' }}>online</strong> in the Topology and Infrastructure views.</li>
+            <li>✓ Incidents trigger automatically when CPU or memory exceeds 80%.</li>
+            <li>✓ Configure webhook notifications in the settings panel.</li>
           </ul>
-        </div>
+        </Card>
       </div>
-    </div>
+    </Card>
   );
 };

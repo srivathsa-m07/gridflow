@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Activity, ArrowLeft, Copy, Check, Terminal, ArrowRight } from 'lucide-react';
+import { ArrowRight, Check, Copy, Terminal } from 'lucide-react';
+import { MarketingShell } from '../components/layout/MarketingShell';
+import { Button } from '../components/ui/Button';
+import { Card } from '../components/ui/Card';
 
 const SECTIONS = [
-  {
-    id: 'quickstart',
-    title: 'Quick start',
-    content: [
+  { id: 'quickstart', title: 'Quick start', content: [
       { type: 'heading', text: 'Prerequisites' },
       { type: 'list', items: ['Node.js v18+', 'npm v9+', 'MongoDB Atlas cluster', 'Gemini API key (optional)'] },
       { type: 'heading', text: '1. Clone and install' },
@@ -16,46 +15,30 @@ const SECTIONS = [
       { type: 'code', text: 'PORT=3001\nMONGODB_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/gridflow\nGEMINI_API_KEY=AIzaSy...\nNODE_ENV=development' },
       { type: 'heading', text: '3. Start the stack' },
       { type: 'code', text: 'npm run dev:api    # Telemetry gateway\nnpm run dev:web    # Operations console\nnpm run dev:agent  # Telemetry agent' },
-    ],
-  },
-  {
-    id: 'docker',
-    title: 'Docker deployment',
-    content: [
+    ]},
+  { id: 'docker', title: 'Docker deployment', content: [
       { type: 'heading', text: 'Full stack via Docker Compose' },
       { type: 'text', text: 'Copy .env.example to .env and configure your MongoDB URI and Gemini key, then:' },
       { type: 'code', text: 'cp .env.example .env\ndocker compose up --build' },
       { type: 'text', text: 'Dashboard: http://localhost:3000 · API: http://localhost:3001' },
       { type: 'heading', text: 'Deploy a standalone agent' },
-      { type: 'text', text: 'Build the agent image once from the monorepo root:' },
-      { type: 'code', text: 'docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .' },
-      { type: 'text', text: 'Then run on any server (get your AGENT_KEY from the dashboard):' },
-      { type: 'code', text: 'docker run -d \\\n  --name my-agent \\\n  --restart=unless-stopped \\\n  -e BACKEND_URL="https://your-api.onrender.com" \\\n  -e AGENT_KEY="<your-key>" \\\n  gridflow-agent:latest' },
-    ],
-  },
-  {
-    id: 'agents',
-    title: 'Agent provisioning',
-    content: [
+      { type: 'code', text: 'docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .\ndocker run -d --name my-agent --restart=unless-stopped -e BACKEND_URL="https://your-api.onrender.com" -e AGENT_KEY="<your-key>" gridflow-agent:latest' },
+    ]},
+  { id: 'agents', title: 'Agent provisioning', content: [
       { type: 'heading', text: 'Creating an agent' },
-      { type: 'list', items: ['Sign in to your GRIDFLOW dashboard', 'Click New Agent in the top bar', 'Enter a name (e.g. prod-web-01)', 'Copy the generated AGENT_KEY — it is shown only once'] },
+      { type: 'list', items: ['Sign in to the dashboard', 'Click New Agent', 'Enter a name like prod-web-01', 'Copy the AGENT_KEY shown once'] },
       { type: 'heading', text: 'Agent environment variables' },
       { type: 'table', rows: [['BACKEND_URL', 'Required', 'Your GRIDFLOW API URL'], ['AGENT_KEY', 'Required', 'Key generated during provisioning']] },
       { type: 'heading', text: 'Agent logs' },
-      { type: 'code', text: 'docker logs -f my-agent\n\n[STARTUP] ✓ Agent initialized on hostname: prod-web-01\n[STARTUP] ✓ Backend gateway: https://your-api.onrender.com\n[STARTUP] ✓ Telemetry interval: 5 seconds\n[TELEMETRY] ✓ Metrics sent (CPU: 34.2%, Memory: 58.1%)' },
-    ],
-  },
-  {
-    id: 'notifications',
-    title: 'Notifications',
-    content: [
+      { type: 'code', text: 'docker logs -f my-agent\n\n[STARTUP] ✓ Agent initialized on hostname: prod-web-01\n[STARTUP] ✓ Backend gateway: https://your-api.onrender.com\n[TELEMETRY] ✓ Metrics sent (CPU: 34.2%, Memory: 58.1%)' },
+    ]},
+  { id: 'notifications', title: 'Notifications', content: [
       { type: 'heading', text: 'Webhook configuration' },
-      { type: 'text', text: 'Navigate to the Notifications section in the dashboard and enter your webhook URLs.' },
-      { type: 'list', items: ['Discord: Settings > Integrations > Webhooks > Copy Webhook URL', 'Slack: Apps > Incoming Webhooks > Add to Slack > Copy URL'] },
+      { type: 'text', text: 'Navigate to Notifications and enter your webhook URLs.' },
+      { type: 'list', items: ['Discord webhook URL', 'Slack webhook URL'] },
       { type: 'heading', text: 'When notifications fire' },
-      { type: 'list', items: ['CPU exceeds 80% threshold', 'Memory exceeds 80% threshold', 'Per-agent 60-second cooldown prevents spam'] },
-    ],
-  },
+      { type: 'list', items: ['CPU exceeds threshold', 'Memory exceeds threshold', '60-second cooldown reduces duplicates'] },
+    ]},
 ];
 
 const CodeBlock: React.FC<{ text: string }> = ({ text }) => {
@@ -65,100 +48,73 @@ const CodeBlock: React.FC<{ text: string }> = ({ text }) => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
   return (
-    <div className="group relative my-4 rounded-xl border border-stone-800 bg-stone-950 overflow-hidden">
-      <button
-        onClick={copy}
-        className="absolute right-3 top-3 rounded-md border border-stone-800 bg-stone-900 p-1.5 text-stone-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-stone-200"
-      >
-        {copied ? <Check className="h-3.5 w-3.5 text-emerald-450" /> : <Copy className="h-3.5 w-3.5" />}
+    <Card variant="darkOverlay" style={{ position: 'relative', margin: '20px 0', padding: 22 }}>
+      <button onClick={copy} type="button" style={{ position: 'absolute', right: 18, top: 18, borderRadius: 10, border: '1px solid var(--d-border)', background: 'var(--d-raised)', color: 'var(--d-text-2)', padding: '8px 10px', display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+        {copied ? <><Check size={14} />Copied</> : <><Copy size={14} />Copy</>}
       </button>
-      <pre className="overflow-x-auto p-4 font-mono text-xs text-stone-300 leading-relaxed">{text}</pre>
-    </div>
+      <pre style={{ margin: 0, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{text}</pre>
+    </Card>
   );
 };
 
 export const DocsPage: React.FC = () => {
   const [active, setActive] = useState('quickstart');
-
   const section = SECTIONS.find((s) => s.id === active)!;
 
   return (
-    <div className="min-h-screen bg-[#fbfcfa] text-stone-800 font-sans">
-      <nav className="fixed inset-x-0 top-0 z-50 border-b border-stone-200/80 bg-[#fbfcfa]/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 ring-1 ring-indigo-100">
-              <Activity className="h-4 w-4 text-indigo-600" />
-            </div>
-            <span className="text-sm font-bold tracking-tight text-stone-900">GRIDFLOW</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-1.5 text-sm text-stone-500 hover:text-indigo-600 transition-colors">
-              <ArrowLeft className="h-3.5 w-3.5" /> Back
-            </Link>
-            <Link to="/login" className="rounded-lg bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-indigo-700 transition shadow-sm">
-              Get started
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <div className="mx-auto max-w-6xl px-6 pt-20 pb-24">
-        <div className="flex gap-8 lg:gap-12">
-          {/* Sidebar */}
-          <aside className="hidden w-48 shrink-0 pt-8 lg:block">
-            <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-stone-400">Documentation</p>
-            <nav className="space-y-0.5">
-              {SECTIONS.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => setActive(s.id)}
-                  className={`w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
-                    active === s.id
-                      ? 'bg-indigo-50 text-indigo-700 font-semibold'
-                      : 'text-stone-605 hover:bg-stone-50 hover:text-stone-900'
-                  }`}
-                >
-                  {s.title}
-                </button>
-              ))}
-            </nav>
-
-            <div className="mt-8 rounded-xl border border-stone-200 bg-stone-50/50 p-4 shadow-premium">
-              <Terminal className="mb-2 h-4 w-4 text-stone-450" />
-              <p className="text-xs font-semibold text-stone-800">Ready to deploy?</p>
-              <p className="mt-1 text-xs text-stone-500">Create your free account and start monitoring.</p>
-              <Link
-                to="/login"
-                className="mt-3 flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
-              >
-                Get started <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
+    <MarketingShell>
+      <section style={{ padding: '88px 0 64px' }}>
+        <div style={{ display: 'grid', gap: 28, gridTemplateColumns: '280px 1fr', alignItems: 'start' }}>
+          <aside style={{ display: 'grid', gap: 18 }}>
+            <Card variant="darkOverlay" style={{ padding: 22, position: 'sticky', top: 92 }}>
+              <p style={{ margin: 0, marginBottom: 18, fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--text-3)' }}>Documentation</p>
+              <nav style={{ display: 'grid', gap: 10 }}>
+                {SECTIONS.map((s) => {
+                  const activeItem = active === s.id;
+                  return (
+                    <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ width: '100%', textAlign: 'left', borderRadius: 14, border: 'none', background: activeItem ? 'rgba(37,99,235,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', cursor: 'pointer' }}>
+                      {s.title}
+                    </button>
+                  );
+                })}
+              </nav>
+              <div style={{ marginTop: 24, padding: 18, borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, color: 'var(--text-3)' }}>
+                  <Terminal size={16} />
+                  <span style={{ fontSize: 12, fontWeight: 700 }}>Ready to deploy?</span>
+                </div>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--text-3)' }}>Create your free account and begin monitoring.</p>
+                <Button asLink href="/login" variant="blue" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 18, fontSize: 12 }}>
+                  Get started <ArrowRight size={14} />
+                </Button>
+              </div>
+            </Card>
           </aside>
 
-          {/* Content */}
-          <main className="min-w-0 flex-1 pt-8">
-            <h1 className="mb-8 text-2xl font-bold text-stone-900">{section.title}</h1>
-            <div className="space-y-2">
-              {section.content.map((block, i) => {
+          <main style={{ minWidth: 0 }}>
+            <h1 style={{ margin: 0, marginBottom: 28, fontSize: 34, fontWeight: 800, color: 'var(--text)' }}>Documentation</h1>
+            <div style={{ display: 'grid', gap: 22 }}>
+              {section.content.map((block, index) => {
                 if (block.type === 'heading') {
-                  return <h2 key={i} className="mt-6 mb-2 text-base font-bold text-stone-850">{block.text}</h2>;
+                  return (
+                    <h2 key={index} style={{ margin: '32px 0 14px', fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>{block.text}</h2>
+                  );
                 }
                 if (block.type === 'text') {
-                  return <p key={i} className="text-sm text-stone-600 leading-relaxed">{block.text}</p>;
+                  return <p key={index} style={{ margin: 0, color: 'var(--text-3)', lineHeight: 1.8, fontSize: 14 }}>{block.text}</p>;
                 }
                 if (block.type === 'code') {
-                  return <CodeBlock key={i} text={block.text!} />;
+                  return <CodeBlock key={index} text={block.text!} />;
                 }
                 if (block.type === 'list') {
                   return (
-                    <ul key={i} className="space-y-1.5 pl-1">
+                    <ul key={index} style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 10, color: 'var(--text-3)', fontSize: 14 }}>
                       {block.items!.map((item) => (
-                        <li key={item} className="flex items-start gap-2 text-sm text-stone-700">
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-600" />
-                          {item}
+                        <li key={item} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <span style={{ marginTop: 6, width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-blue)' }} />
+                          <span>{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -166,20 +122,20 @@ export const DocsPage: React.FC = () => {
                 }
                 if (block.type === 'table') {
                   return (
-                    <div key={i} className="my-4 overflow-hidden rounded-xl border border-stone-200 shadow-premium bg-white">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-stone-200 bg-stone-50">
-                            {['Variable', 'Required', 'Description'].map((h) => (
-                              <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-widest text-stone-500">{h}</th>
+                    <div key={index} style={{ borderRadius: 18, border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                        <thead style={{ background: 'rgba(255,255,255,0.04)' }}>
+                          <tr>
+                            {['Variable', 'Required', 'Description'].map((header) => (
+                              <th key={header} style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'var(--text-3)' }}>{header}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
-                          {block.rows!.map((row, ri) => (
-                            <tr key={ri} className="border-b border-stone-100">
-                              {row.map((cell, ci) => (
-                                <td key={ci} className={`px-4 py-3 ${ci === 0 ? 'font-mono text-xs text-indigo-600 font-bold' : 'text-stone-605 text-sm'}`}>{cell}</td>
+                          {block.rows!.map((row, rowIndex) => (
+                            <tr key={rowIndex} style={{ background: rowIndex % 2 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
+                              {row.map((cell, cellIndex) => (
+                                <td key={cellIndex} style={{ padding: '14px 16px', color: cellIndex === 0 ? 'var(--accent-blue)' : 'var(--text-3)', fontFamily: cellIndex === 0 ? 'var(--font-mono)' : 'inherit', fontSize: cellIndex === 0 ? 12 : 14 }}>{cell}</td>
                               ))}
                             </tr>
                           ))}
@@ -192,23 +148,19 @@ export const DocsPage: React.FC = () => {
               })}
             </div>
 
-            {/* Mobile section nav */}
-            <div className="mt-10 flex flex-wrap gap-2 lg:hidden">
-              {SECTIONS.map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => setActive(s.id)}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                    active === s.id ? 'bg-indigo-50 text-indigo-700' : 'border border-stone-200 bg-white text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {s.title}
-                </button>
-              ))}
+            <div style={{ marginTop: 32, display: 'grid', gap: 12 }}>
+              {SECTIONS.map((s) => {
+                const activeItem = active === s.id;
+                return (
+                  <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ borderRadius: 14, border: activeItem ? '1px solid rgba(37,99,235,0.35)' : '1px solid var(--border)', background: activeItem ? 'rgba(37,99,235,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
+                    {s.title}
+                  </button>
+                );
+              })}
             </div>
           </main>
         </div>
-      </div>
-    </div>
+      </section>
+    </MarketingShell>
   );
 };

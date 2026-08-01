@@ -1,11 +1,14 @@
 import React from 'react';
-import { Cpu, Database, Clock, ShieldCheck, ShieldAlert, Shield, Server, ArrowRight } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Shield, Server, ArrowRight } from 'lucide-react';
 import { MetricCard } from '../components/MetricCard';
 import { MetricsChart } from '../components/MetricsChart';
 import { AnalyticsPanel } from '../components/AnalyticsPanel';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { AlertBanner } from '../components/AlertBanner';
 import { Metrics, AlertData, IncidentData, AgentData, FeedEvent } from '../types';
+import { Card } from '../components/ui/Card';
+import { H2, Lead } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 
 interface OverviewPageProps {
   metrics: Metrics | null;
@@ -39,15 +42,31 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   const statusBadge = () => {
     if (!metrics) return null;
     const cfg = {
-      critical: { label: 'System Critical', icon: ShieldAlert, cls: 'bg-rose-500/10 border-rose-500/20 text-rose-400' },
-      warning:  { label: 'System Warning',  icon: Shield,      cls: 'bg-amber-500/10 border-amber-500/20 text-amber-400' },
-      healthy:  { label: 'System Healthy',  icon: ShieldCheck, cls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' },
-    }[metrics.status] ?? { label: 'Healthy', icon: ShieldCheck, cls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' };
+      critical: {
+        label: 'System Critical',
+        icon: ShieldAlert,
+        style: { backgroundColor: 'rgba(220,38,38,0.12)', borderColor: 'rgba(220,38,38,0.2)', color: 'var(--crit)' },
+      },
+      warning: {
+        label: 'System Warning',
+        icon: Shield,
+        style: { backgroundColor: 'rgba(245,158,11,0.12)', borderColor: 'rgba(245,158,11,0.2)', color: 'var(--warn)' },
+      },
+      healthy: {
+        label: 'System Healthy',
+        icon: ShieldCheck,
+        style: { backgroundColor: 'rgba(16,185,129,0.12)', borderColor: 'rgba(16,185,129,0.2)', color: 'var(--ok)' },
+      },
+    }[metrics.status] ?? {
+      label: 'Healthy',
+      icon: ShieldCheck,
+      style: { backgroundColor: 'rgba(16,185,129,0.12)', borderColor: 'rgba(16,185,129,0.2)', color: 'var(--ok)' },
+    };
     const Icon = cfg.icon;
     return (
-      <div className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${cfg.cls}`}>
-        <Icon className="h-3.5 w-3.5" />
-        {cfg.label}
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 999, border: '1px solid', padding: '8px 12px', fontSize: 12, fontWeight: 700, ...cfg.style }}>
+        <Icon size={14} />
+        <span>{cfg.label}</span>
       </div>
     );
   };
@@ -55,35 +74,31 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   // Empty state for new organizations with no agents
   if (!hasAgents && !metrics) {
     return (
-      <div className="space-y-5">
+      <div style={{ display: 'grid', gap: 20 }}>
         <AlertBanner alerts={alerts} onDismiss={onDismissAlert} />
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-10 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 ring-1 ring-slate-700">
-            <Server className="h-6 w-6 text-slate-500" />
-          </div>
-          <h2 className="text-base font-semibold text-slate-200">No agents connected</h2>
-          <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500 leading-relaxed">
-            Create your first monitoring agent to begin infrastructure telemetry collection.
-          </p>
-          {onNewAgent && (
-            <button
-              onClick={onNewAgent}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-400 transition-colors"
-            >
-              Provision your first agent
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          {ONBOARDING_STEPS.map(({ n, title, desc }) => (
-            <div key={n} className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
-              <span className="mb-3 block font-mono text-xl font-bold text-slate-700">{n}</span>
-              <p className="mb-1 text-sm font-semibold text-slate-200">{title}</p>
-              <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+        <Card style={{ textAlign: 'center', padding: 28 }}>
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ margin: '0 auto 12px', display: 'flex', height: 56, width: 56, alignItems: 'center', justifyContent: 'center', borderRadius: 16, background: 'var(--d-overlay)' }}>
+              <Server size={22} color="var(--d-text-2)" />
             </div>
+            <H2>No agents connected</H2>
+            <Lead style={{ marginTop: 8 }}>Create your first monitoring agent to begin infrastructure telemetry collection.</Lead>
+            {onNewAgent && (
+              <div style={{ marginTop: 18 }}>
+                <Button variant="blue" onClick={onNewAgent} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>Provision your first agent <ArrowRight size={14} /></Button>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          {ONBOARDING_STEPS.map(({ n, title, desc }) => (
+            <Card key={n} variant="darkOverlay" style={{ padding: 24 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{n}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+              <div style={{ fontSize: 13, color: 'var(--d-text-3)' }}>{desc}</div>
+            </Card>
           ))}
         </div>
       </div>
@@ -91,30 +106,29 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
   }
 
   return (
-    <div className="space-y-5">
+    <div style={{ display: 'grid', gap: 20 }}>
       {metrics && (
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-500">
-            Last update: {metrics.formattedTime || '—'} · Agent: <span className="text-slate-300">{metrics.agentId || 'local'}</span>
-          </p>
-          {statusBadge()}
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 13, color: 'var(--d-text-2)' }}>Last update: {metrics.formattedTime || '—'} · Agent: <span style={{ color: 'var(--d-text)', fontWeight: 700 }}>{metrics.agentId || 'local'}</span></div>
+          <div>{statusBadge()}</div>
         </div>
       )}
 
       <AlertBanner alerts={alerts} onDismiss={onDismissAlert} />
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
+      <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr 340px' }}>
         <AnalyticsPanel agents={agents} incidents={incidents} />
-        <ActivityFeed events={activityFeed} />
+        <div>
+          <ActivityFeed events={activityFeed} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(3, 1fr)' }}>
         <MetricCard
           title="CPU Load"
           value={metrics ? metrics.cpu : '—'}
           unit="%"
-          icon={<Cpu className="h-4 w-4" />}
-          gradientClass="from-cyan-500 to-blue-500"
+          accentColor="var(--accent-blue)"
           showProgress
           progressValue={metrics?.cpu ?? 0}
         />
@@ -122,8 +136,7 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           title="Memory Used"
           value={metrics ? metrics.memory : '—'}
           unit="%"
-          icon={<Database className="h-4 w-4" />}
-          gradientClass="from-violet-500 to-purple-500"
+          accentColor="#8b5cf6"
           showProgress
           progressValue={metrics?.memory ?? 0}
         />
@@ -131,19 +144,17 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           title="System Uptime"
           value={metrics ? metrics.uptime : '—'}
           unit="hrs"
-          icon={<Clock className="h-4 w-4" />}
-          gradientClass="from-amber-500 to-orange-500"
+          accentColor="#f59e0b"
         />
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr 1fr' }}>
         <MetricsChart
           title="CPU Usage"
           data={history}
           dataKey="cpu"
           color="#06b6d4"
           gradientId="cpuGrad"
-          bulletColor="bg-cyan-400"
         />
         <MetricsChart
           title="Memory Usage"
@@ -151,7 +162,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           dataKey="memory"
           color="#8b5cf6"
           gradientId="memGrad"
-          bulletColor="bg-violet-400"
         />
       </div>
     </div>
