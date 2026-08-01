@@ -24,11 +24,11 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
   --name ${slugName} \\
   --restart=unless-stopped \\
   -e BACKEND_URL="${backendUrl}" \\
-  -e AGENT_KEY="${agentKey}" \\
+  -e PROVISIONING_TOKEN="${agentKey}" \\
   gridflow-agent:latest`;
-  const dockerSimple = `docker run -e BACKEND_URL="${backendUrl}" -e AGENT_KEY="${agentKey}" gridflow-agent:latest`;
+  const dockerSimple = `docker run -e BACKEND_URL="${backendUrl}" -e PROVISIONING_TOKEN="${agentKey}" gridflow-agent:latest`;
   const buildCommand = `docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .`;
-  const localCommand = `AGENT_KEY="${agentKey}" BACKEND_URL="${backendUrl}" npm run dev:agent`;
+  const localCommand = `PROVISIONING_TOKEN="${agentKey}" BACKEND_URL="${backendUrl}" npm run dev:agent`;
 
   const copyToClipboard = async (value: string, field: string) => {
     try {
@@ -111,7 +111,7 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
           <div style={{ background: 'var(--d-bg)', border: '1px solid var(--d-border)', borderRadius: 16, padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', wordBreak: 'break-all' }}>
             {agentKey}
           </div>
-          <p style={{ marginTop: 14, fontSize: 12, color: 'var(--d-text-3)' }}>This key authenticates your agent with GRIDFLOW. Keep it secure and do not commit it to source control.</p>
+          <p style={{ marginTop: 14, fontSize: 12, color: 'var(--d-text-3)' }}>This is a one-time provisioning token — the agent exchanges it for its permanent credential on first startup. It expires after a short window and cannot be reused, so keep it secure and do not commit it to source control.</p>
         </Card>
 
         <Card variant="darkOverlay" style={{ padding: 20 }}>

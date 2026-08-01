@@ -3,8 +3,64 @@ import { validateAgentMetrics } from '../middleware/validate';
 import { agentAuthMiddleware } from '../middleware/agentAuth';
 import { handleIncomingMetrics } from '../services/metrics';
 import { markAgentOnline } from '../services/agentLifecycle';
+import { consumeProvisioningToken } from '../services/provisioning';
+import { Agent } from '../models/Agent';
+import { generateAgentSecret, hashSecret, formatAgentToken } from '../utils/secrets';
 
 const router = Router();
+
+// Exchanges a short-lived, single-use provisioning token (minted by
+// POST /api/agents/create or /api/agents/:id/install-command) for the
+// agent's permanent credential. This is the second phase of two-phase
+// provisioning — the permanent secret is generated here, for the first
+// time, and returned exactly once.
+router.post('/register', async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const provisioningToken = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : undefined;
+
+    if (!provisioningToken) {
+      return res.status(401).json({ error: { message: 'Provisioning token required' } });
+    }
+
+    const result = await consumeProvisioningToken(provisioningToken);
+    if (!result.ok) {
+      return res.status(401).json({ error: { message: 'Invalid, expired, or already-used provisioning token' } });
+    }
+
+    const { hostname } = req.body || {};
+
+    const rawSecret = generateAgentSecret();
+    const secretHash = await hashSecret(rawSecret);
+
+    // The agent may already be revoked between token issuance and this
+    // exchange (e.g. an operator revoked it while the install command was
+    // still sitting in someone's terminal history) — never hand out a live
+    // credential for a revoked agent.
+    const agent = await Agent.findOneAndUpdate(
+      { _id: result.agentId, organizationId: result.organizationId, status: { $ne: 'revoked' } },
+      {
+        $set: {
+          secretHash,
+          secretRotatedAt: new Date(),
+          ...(hostname && typeof hostname === 'string' ? { hostname } : {})
+        }
+      },
+      { new: true }
+    );
+
+    if (!agent) {
+      return res.status(409).json({ error: { message: 'Agent is no longer available for registration' } });
+    }
+
+    res.status(201).json({
+      agentId: agent._id.toString(),
+      agentKey: formatAgentToken(agent._id.toString(), rawSecret)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Dedicated, lightweight liveness signal — no telemetry payload, no validation
 // beyond auth. agentAuthMiddleware already rejects revoked/invalid/missing

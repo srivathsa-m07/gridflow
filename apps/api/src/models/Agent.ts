@@ -6,25 +6,32 @@ export const AGENT_STATUSES: AgentStatus[] = ['created', 'online', 'offline', 'r
 
 export interface IAgent extends Document {
   name: string;
-  secretHash: string;
+  // Absent until the agent completes registration (two-phase provisioning) —
+  // a freshly created agent record has no permanent credential yet.
+  secretHash?: string;
   organizationId: mongoose.Types.ObjectId;
   hostname?: string;
+  // Installation metadata, persisted so onboarding info (e.g. to rebuild an
+  // install command later) survives beyond the single API response/page load
+  // that originally displayed it.
+  backendUrl?: string;
   status: AgentStatus;
   lastHeartbeatAt?: Date;
   revokedAt?: Date;
-  secretRotatedAt: Date;
+  secretRotatedAt?: Date;
   createdAt: Date;
 }
 
 const AgentSchema = new Schema<IAgent>({
   name: { type: String, required: true },
-  secretHash: { type: String, required: true, select: false },
+  secretHash: { type: String, select: false },
   organizationId: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
   hostname: { type: String },
+  backendUrl: { type: String },
   status: { type: String, enum: AGENT_STATUSES, required: true, default: 'created' },
   lastHeartbeatAt: { type: Date },
   revokedAt: { type: Date },
-  secretRotatedAt: { type: Date, required: true, default: Date.now },
+  secretRotatedAt: { type: Date },
   createdAt: { type: Date, default: Date.now }
 });
 
