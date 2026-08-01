@@ -9,6 +9,8 @@ export interface EnvConfig {
   JWT_SECRET: string;
   GEMINI_API_KEY?: string;
   NODE_ENV: string;
+  // Published, pullable agent image — see .github/workflows/agent-release.yml
+  AGENT_IMAGE: string;
 }
 
 const getEnv = (): EnvConfig => {
@@ -30,7 +32,8 @@ const getEnv = (): EnvConfig => {
     MONGODB_URI,
     JWT_SECRET,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    NODE_ENV: process.env.NODE_ENV || 'development'
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    AGENT_IMAGE: process.env.AGENT_IMAGE || 'ghcr.io/srivathsa-m07/gridflow-agent'
   };
 };
 

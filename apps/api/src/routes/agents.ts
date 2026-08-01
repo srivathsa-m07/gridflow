@@ -4,6 +4,7 @@ import { Agent } from '../models/Agent';
 import { ProvisioningToken } from '../models/ProvisioningToken';
 import { generateAgentSecret, hashSecret, formatAgentToken } from '../utils/secrets';
 import { issueProvisioningToken, invalidatePendingProvisioningTokens } from '../services/provisioning';
+import { env } from '../config/env';
 
 const router = Router();
 
@@ -30,12 +31,16 @@ const toAgentSummary = (agent: {
   secretRotatedAt: agent.secretRotatedAt
 });
 
+// Published, multi-arch image built by .github/workflows/agent-release.yml —
+// no repository clone or local `docker build` required.
+const AGENT_IMAGE_TAG = `${env.AGENT_IMAGE}:latest`;
+
 const buildInstallCommands = (agentName: string, backendUrl: string, provisioningToken: string) => {
   const slugName = agentName.trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'gridflow-agent';
   return {
-    dockerRun: `docker run -d \\\n  --name ${slugName} \\\n  --restart=unless-stopped \\\n  -e BACKEND_URL="${backendUrl}" \\\n  -e PROVISIONING_TOKEN="${provisioningToken}" \\\n  gridflow-agent:latest`,
-    dockerRunSimple: `docker run -e BACKEND_URL="${backendUrl}" -e PROVISIONING_TOKEN="${provisioningToken}" gridflow-agent:latest`,
-    dockerBuild: `docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .`,
+    dockerPull: `docker pull ${AGENT_IMAGE_TAG}`,
+    dockerRun: `docker run -d \\\n  --name ${slugName} \\\n  --restart=unless-stopped \\\n  -e BACKEND_URL="${backendUrl}" \\\n  -e PROVISIONING_TOKEN="${provisioningToken}" \\\n  ${AGENT_IMAGE_TAG}`,
+    dockerRunSimple: `docker run -e BACKEND_URL="${backendUrl}" -e PROVISIONING_TOKEN="${provisioningToken}" ${AGENT_IMAGE_TAG}`,
     local: `PROVISIONING_TOKEN="${provisioningToken}" BACKEND_URL="${backendUrl}" npm run dev:agent`
   };
 };

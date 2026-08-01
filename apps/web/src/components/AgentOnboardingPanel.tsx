@@ -20,14 +20,15 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
   const isLocalhostUrl = backendUrl.includes('localhost') || backendUrl.includes('127.0.0.1');
   const slugName = agentName.toLowerCase().replace(/\s+/g, '-');
 
+  const agentImage = 'ghcr.io/srivathsa-m07/gridflow-agent:latest';
   const dockerCommand = `docker run -d \\
   --name ${slugName} \\
   --restart=unless-stopped \\
   -e BACKEND_URL="${backendUrl}" \\
   -e PROVISIONING_TOKEN="${agentKey}" \\
-  gridflow-agent:latest`;
-  const dockerSimple = `docker run -e BACKEND_URL="${backendUrl}" -e PROVISIONING_TOKEN="${agentKey}" gridflow-agent:latest`;
-  const buildCommand = `docker build -f apps/agent/Dockerfile -t gridflow-agent:latest .`;
+  ${agentImage}`;
+  const dockerSimple = `docker run -e BACKEND_URL="${backendUrl}" -e PROVISIONING_TOKEN="${agentKey}" ${agentImage}`;
+  const pullCommand = `docker pull ${agentImage}`;
   const localCommand = `PROVISIONING_TOKEN="${agentKey}" BACKEND_URL="${backendUrl}" npm run dev:agent`;
 
   const copyToClipboard = async (value: string, field: string) => {
@@ -116,10 +117,10 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
 
         <Card variant="darkOverlay" style={{ padding: 20 }}>
           <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Docker deployment</p>
-          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent as a container on any server with Docker installed. No Node.js required.</p>
+          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent as a container on any server with Docker installed. No Node.js and no source checkout required — the image is published and pulled directly from GitHub Container Registry.</p>
           <div style={{ display: 'grid', gap: 20 }}>
             {[
-              { label: 'Step 1', title: 'Build the agent image', command: buildCommand },
+              { label: 'Step 1', title: 'Pull the published agent image', command: pullCommand },
               { label: 'Step 2a', title: 'Run quick start (foreground)', command: dockerSimple },
               { label: 'Step 2b', title: 'Production run (daemon)', command: dockerCommand },
             ].map((item) => (
