@@ -1,9 +1,7 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import {
-  Activity, LayoutDashboard, Server, AlertOctagon,
-  Bell, LogOut, ChevronRight, ArrowRight,
-} from 'lucide-react';
+import { Activity, LayoutDashboard, Server, AlertOctagon, Bell, LogOut, Sparkles, Globe, ArrowUpRight } from 'lucide-react';
+import { Card } from '../ui/Card';
 
 interface SidebarProps {
   user: { name: string; email: string; organizationName?: string; plan?: string } | null;
@@ -11,96 +9,110 @@ interface SidebarProps {
   isConnected: boolean;
 }
 
-const navItems = [
-  { to: '/dashboard',               icon: LayoutDashboard, label: 'Overview' },
-  { to: '/dashboard/topology',      icon: Server,          label: 'Topology' },
-  { to: '/dashboard/incidents',     icon: AlertOctagon,    label: 'Incidents' },
-  { to: '/dashboard/notifications', icon: Bell,            label: 'Notifications' },
+const NAV = [
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
+  { to: '/dashboard/topology', icon: Server, label: 'Topology' },
+  { to: '/dashboard/incidents', icon: AlertOctagon, label: 'Incidents' },
+  { to: '/dashboard/notifications', icon: Bell, label: 'Notifications' },
 ];
+
+const navBase: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: 9,
+  padding: '10px 12px', borderRadius: 10,
+  fontSize: 13, fontWeight: 500, textDecoration: 'none',
+  transition: 'background 0.15s, color 0.15s',
+  cursor: 'pointer',
+};
 
 export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected }) => {
   const isFreePlan = !user?.plan || user.plan === 'free';
+  const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-slate-800 bg-slate-900">
-      {/* Logo */}
-      <div className="flex h-14 items-center gap-2.5 border-b border-slate-800 px-5">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/20 ring-1 ring-indigo-500/30">
-          <Activity className="h-4 w-4 text-indigo-400" />
+    <aside style={{
+      position: 'fixed', inset: '0 auto 0 0', zIndex: 40,
+      width: 224, display: 'flex', flexDirection: 'column',
+      background: 'var(--d-raised)', borderRight: '1px solid var(--d-border)',
+    }}>
+      <div style={{ height: 64, display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', borderBottom: '1px solid var(--d-border)' }}>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Activity size={14} color="#fff" />
         </div>
-        <span className="text-sm font-bold tracking-tight text-slate-100">GRIDFLOW</span>
-        <div className="ml-auto flex items-center gap-1">
-          <span className={`h-1.5 w-1.5 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-          <span className={`text-[10px] font-semibold ${isConnected ? 'text-emerald-500' : 'text-rose-500'}`}>
-            {isConnected ? 'Live' : 'Off'}
+        <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--d-text)', letterSpacing: '-0.02em' }}>GRIDFLOW</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: isConnected ? 'var(--ok)' : 'var(--d-text-3)' }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: isConnected ? 'var(--ok)' : 'var(--d-text-3)' }}>
+            {isConnected ? 'Live' : 'Disconnected'}
           </span>
         </div>
       </div>
 
-      {/* Org + plan badge */}
-      <div className="mx-3 mt-3 rounded-lg border border-slate-800 bg-slate-800/50 px-3 py-2">
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Organization</p>
-          <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ring-1 ${
-            isFreePlan
-              ? 'bg-slate-800 text-slate-400 ring-slate-700'
-              : 'bg-indigo-500/20 text-indigo-400 ring-indigo-500/30'
-          }`}>
-            {isFreePlan ? 'Free' : (user?.plan || 'Pro')}
-          </span>
-        </div>
-        <p className="mt-0.5 truncate text-xs font-semibold text-slate-200">
-          {user?.organizationName || user?.email || '—'}
-        </p>
+      <div style={{ padding: '12px' }}>
+        <Card variant="darkOverlay" style={{ padding: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Workspace</span>
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 8px', borderRadius: 8, background: isFreePlan ? 'rgba(255,255,255,0.04)' : 'rgba(37,99,235,0.12)', color: isFreePlan ? 'var(--d-text-3)' : 'var(--accent-blue)' }}>
+              {isFreePlan ? 'Free' : (user?.plan || 'Pro')}
+            </span>
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--d-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {user?.organizationName || user?.email || '—'}
+          </p>
+        </Card>
       </div>
 
-      {/* Nav */}
-      <nav className="mt-4 flex-1 space-y-0.5 px-2">
-        <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Console</p>
-        {navItems.map(({ to, icon: Icon, label }) => (
+      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <span style={{ padding: '0 8px', marginBottom: 6, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Console</span>
+        {NAV.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === '/dashboard'}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-indigo-500/10 text-indigo-400 ring-1 ring-indigo-500/30'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
-              }`
-            }>
-            <Icon className="h-4 w-4 shrink-0" />
+            style={({ isActive }) => ({
+              ...navBase,
+              color: isActive ? 'var(--d-text)' : 'var(--d-text-2)',
+              background: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
+            })}
+          >
+            <Icon size={15} style={{ flexShrink: 0 }} />
             {label}
-            <ChevronRight className="ml-auto h-3 w-3 opacity-0 transition-opacity group-hover:opacity-40" />
           </NavLink>
+        ))}
+
+        <div style={{ margin: '14px 0', borderTop: '1px solid var(--d-border)' }} />
+        <span style={{ padding: '0 8px', marginBottom: 6, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Product</span>
+        {[
+          { to: '/pricing', icon: Sparkles, label: 'Pricing' },
+          { to: '/', icon: Globe, label: 'Website' },
+        ].map(({ to, icon: Icon, label }) => (
+          <Link key={to} to={to} style={{ ...navBase, color: 'var(--d-text-2)', background: 'transparent' }}>
+            <Icon size={14} style={{ flexShrink: 0 }} />
+            {label}
+          </Link>
         ))}
       </nav>
 
-      {/* Upgrade nudge for free users */}
       {isFreePlan && (
-        <div className="mx-3 mb-3 rounded-lg border border-slate-700 bg-slate-800/50 p-3">
-          <p className="text-xs font-semibold text-slate-200">Upgrade to Pro</p>
-          <p className="mt-0.5 text-[10px] text-slate-400 leading-normal">25 agents · 90-day history · priority support</p>
-          <Link to="/pricing"
-            className="mt-2.5 flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
-            View plans <ArrowRight className="h-3 w-3" />
+        <Card variant="darkOverlay" style={{ margin: '8px', padding: '14px' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--d-text)', margin: '0 0 6px' }}>Upgrade to Pro</p>
+          <p style={{ fontSize: 12, color: 'var(--d-text-3)', margin: 0, lineHeight: 1.5 }}>25 agents · 90-day history</p>
+          <Link to="/pricing" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 13, fontWeight: 700, color: 'var(--accent-blue)', textDecoration: 'none' }}>
+            View plans <ArrowUpRight size={13} />
           </Link>
-        </div>
+        </Card>
       )}
 
-      {/* User footer */}
-      <div className="border-t border-slate-800 p-3">
-        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300">
-            {(user?.name || user?.email || 'U')[0].toUpperCase()}
+      <Card variant="darkOverlay" style={{ margin: 8, padding: 10, borderTop: '1px solid var(--d-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderRadius: 10, padding: '8px 8px' }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--d-overlay)', border: '1px solid var(--d-border)', display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 800, color: 'var(--d-text-2)' }}>
+            {initials}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-semibold text-slate-200">{user?.name || 'User'}</p>
-            <p className="truncate text-[10px] text-slate-400">{user?.email}</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--d-text)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name || 'User'}</p>
+            <p style={{ fontSize: 11, color: 'var(--d-text-3)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</p>
           </div>
-          <button onClick={onLogout} title="Sign out"
-            className="rounded-md p-1.5 text-slate-500 hover:bg-slate-800 hover:text-slate-200 transition-colors cursor-pointer">
-            <LogOut className="h-3.5 w-3.5" />
+          <button onClick={onLogout} title="Sign out" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--d-text-3)', padding: 6, borderRadius: 8, display: 'flex', alignItems: 'center' }}>
+            <LogOut size={14} />
           </button>
         </div>
-      </div>
+      </Card>
     </aside>
   );
 };

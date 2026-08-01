@@ -22,7 +22,29 @@ if (!AGENT_KEY) {
 // Log initialization
 logger.info(`[STARTUP] ✓ Agent initialized on hostname: ${HOSTNAME}`);
 logger.info(`[STARTUP] ✓ Backend gateway: ${BACKEND_URL}`);
+logger.info(`[STARTUP] ✓ Heartbeat interval: 5 seconds`);
 logger.info(`[STARTUP] ✓ Telemetry interval: 5 seconds`);
+
+// Lightweight liveness signal, sent independently of telemetry so the
+// server's online/offline lifecycle doesn't depend on metrics collection
+// succeeding.
+const sendHeartbeat = async () => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/agent/heartbeat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${AGENT_KEY}`
+      }
+    });
+
+    if (!response.ok) {
+      logger.warn(`[HEARTBEAT] Transmission failed: ${response.statusText}`);
+    }
+  } catch (error: any) {
+    logger.error(`[HEARTBEAT] ✗ ${error?.message || error}`);
+  }
+};
 
 const collectAndSendMetrics = async () => {
   try {
@@ -33,7 +55,6 @@ const collectAndSendMetrics = async () => {
     ]);
 
     const payload = {
-      agentKey: AGENT_KEY,
       hostname: HOSTNAME,
       cpu: Math.round(load.currentLoad * 10) / 10,
       memory: Math.round((mem.active / mem.total) * 100 * 10) / 10,
@@ -43,7 +64,8 @@ const collectAndSendMetrics = async () => {
     const response = await fetch(`${BACKEND_URL}/api/agent/metrics`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${AGENT_KEY}`
       },
       body: JSON.stringify(payload)
     });
@@ -58,10 +80,13 @@ const collectAndSendMetrics = async () => {
   }
 };
 
-// Run telemetry collection every 5 seconds
+// Heartbeat and telemetry run on independent timers/requests — a slow or
+// failing metrics collection cycle must not delay or block the heartbeat.
+setInterval(sendHeartbeat, 5000);
 setInterval(collectAndSendMetrics, 5000);
 
-// Collect metrics immediately on startup
+// Send both immediately on startup
+sendHeartbeat();
 collectAndSendMetrics();
 
 // Graceful shutdown handling

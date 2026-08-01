@@ -1,5 +1,8 @@
 import React from 'react';
 import { Bell, Save } from 'lucide-react';
+import { Card } from '../components/ui/Card';
+import { Lead } from '../components/ui/Typography';
+import { Button } from '../components/ui/Button';
 
 interface NotificationsPageProps {
   settings: { discordWebhookUrl: string; slackWebhookUrl: string };
@@ -15,64 +18,56 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
   isSaving,
 }) => {
   return (
-    <div className="max-w-2xl space-y-5">
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
-        <div className="mb-6 flex items-center gap-2 border-b border-slate-800 pb-4">
-          <Bell className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-200">Incident Webhooks</h2>
+    <div style={{ maxWidth: '760px', display: 'grid', gap: 18 }}>
+      <Card variant="dark" style={{ padding: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--d-border)', paddingBottom: 8, marginBottom: 8 }}>
+          <Bell size={16} color="var(--d-text-2)" />
+          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--d-text)' }}>Incident Webhooks</div>
         </div>
 
-        <p className="mb-6 text-sm text-slate-400 leading-relaxed">
-          Configure Discord and Slack webhooks to receive incident notifications when CPU or memory thresholds are breached.
-          A 60-second cooldown per agent prevents duplicate alerts.
-        </p>
+        <Lead style={{ marginBottom: 12 }}>Configure Discord and Slack webhooks to receive incident notifications when CPU or memory thresholds are breached. A 60-second cooldown per agent prevents duplicate alerts.</Lead>
 
-        <div className="space-y-4">
+        <div style={{ display: 'grid', gap: 12 }}>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Discord Webhook URL</label>
+            <label style={{ display: 'block', marginBottom: 6, fontSize: 12, fontWeight: 700, color: 'var(--d-text-3)' }}>Discord Webhook URL</label>
             <input
               value={settings.discordWebhookUrl}
               onChange={(e) => onChange({ ...settings, discordWebhookUrl: e.target.value })}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-500 placeholder:text-slate-600"
+              style={{ width: '100%', borderRadius: 12, border: '1px solid var(--d-border)', background: 'var(--d-raised)', color: 'var(--d-text)', padding: '12px 14px', fontSize: 14 }}
               placeholder="https://discord.com/api/webhooks/..."
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Slack Webhook URL</label>
+            <label style={{ display: 'block', marginBottom: 6, fontSize: 12, fontWeight: 700, color: 'var(--d-text-3)' }}>Slack Webhook URL</label>
             <input
               value={settings.slackWebhookUrl}
               onChange={(e) => onChange({ ...settings, slackWebhookUrl: e.target.value })}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 outline-none transition focus:border-cyan-500 placeholder:text-slate-600"
+              style={{ width: '100%', borderRadius: 12, border: '1px solid var(--d-border)', background: 'var(--d-raised)', color: 'var(--d-text)', padding: '12px 14px', fontSize: 14 }}
               placeholder="https://hooks.slack.com/services/..."
             />
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
-          <p className="text-xs text-slate-600">Changes apply immediately after saving.</p>
-          <button
-            onClick={onSave}
-            disabled={isSaving}
-            className="flex items-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Save className="h-3.5 w-3.5" />
-            {isSaving ? 'Saving…' : 'Save webhooks'}
-          </button>
+        <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--d-border)', paddingTop: 12 }}>
+          <div style={{ fontSize: 13, color: 'var(--d-text-3)' }}>Changes apply immediately after saving.</div>
+          <Button variant="blue" onClick={onSave} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }} disabled={isSaving}>
+            <Save size={14} /> {isSaving ? 'Saving…' : 'Save webhooks'}
+          </Button>
         </div>
-      </div>
+      </Card>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-        <h3 className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-500">When notifications fire</h3>
-        <ul className="space-y-2">
+      <Card variant="dark" style={{ padding: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--d-text-3)', marginBottom: 8 }}>When notifications fire</div>
+        <ul style={{ display: 'grid', gap: 8 }}>
           {['CPU load exceeds 80%', 'Memory usage exceeds 80%', '60-second cooldown per agent prevents spam'].map((item) => (
-            <li key={item} className="flex items-center gap-2 text-sm text-slate-400">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+            <li key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--d-text-2)' }}>
+              <span style={{ width: 8, height: 8, borderRadius: 6, background: 'var(--accent-blue)', display: 'inline-block' }} />
               {item}
             </li>
           ))}
         </ul>
-      </div>
+      </Card>
     </div>
   );
 };
