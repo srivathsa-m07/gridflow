@@ -117,12 +117,11 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
   return (
     <MarketingShell>
       <section style={{ padding: '92px 0 80px' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gap: 32, gridTemplateColumns: '1.1fr 0.9fr', alignItems: 'start' }}>
-            <div style={{ display: 'grid', gap: 22, justifyContent: 'start' }}>
-              <div style={{ borderRadius: 24, padding: 28, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gap: 22 }}>
+              <div style={{ borderRadius: 24, padding: 28, background: 'var(--surface)', border: '1px solid var(--border)' }}>
                 <p className="overline" style={{ margin: 0, marginBottom: 14, letterSpacing: '0.16em', color: 'var(--text-3)' }}>Authentication</p>
-                <h1 style={{ margin: 0, fontSize: 40, lineHeight: 1.05, fontWeight: 800, color: 'var(--text)' }}>
+                <h1 style={{ margin: 0, fontFamily: 'var(--font-serif)', fontSize: 38, lineHeight: 1.1, fontWeight: 600, color: 'var(--text)' }}>
                   {view === 'signup' ? 'Create your organization' : 'Sign in to your workspace'}
                 </h1>
                 <p style={{ marginTop: 18, color: 'var(--text-3)', fontSize: 15, lineHeight: 1.8 }}>
@@ -131,7 +130,7 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
               </div>
               <div style={{ borderRadius: 24, padding: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(56,189,248,0.12)', display: 'grid', placeItems: 'center' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(31,109,74,0.12)', display: 'grid', placeItems: 'center' }}>
                     <Activity size={18} color='var(--accent)' />
                   </div>
                   <div>
@@ -209,7 +208,6 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
                   By continuing you agree to our <Link to="/terms" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Terms</Link> and <Link to="/privacy" style={{ color: 'var(--accent-blue)', textDecoration: 'none' }}>Privacy Policy</Link>.
                 </p>
               </div>
-            </div>
           </div>
         </div>
       </section>
@@ -220,6 +218,7 @@ const AuthPage: React.FC<{ onAuth: (u: User) => void }> = ({ onAuth }) => {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLogout }) => {
   const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [isConnected, setIsConnected]   = useState(false);
   const [isLoading, setIsLoading]       = useState(true);
   const [apiError, setApiError]         = useState<string | null>(null);
@@ -359,7 +358,7 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
       <div style={{ minHeight: '100vh', background: 'var(--d-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ position: 'relative', width: 40, height: 40, margin: '0 auto 16px' }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(37,99,235,0.15)', borderTopColor: 'var(--accent-blue)', animation: 'spin 0.8s linear infinite' }} />
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid rgba(31,109,74,0.15)', borderTopColor: 'var(--accent-blue)', animation: 'spin 0.8s linear infinite' }} />
             <Activity size={16} style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: 'var(--accent-blue)' }} />
           </div>
           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--d-text-2)', margin: '0 0 4px' }}>Initializing GRIDFLOW</p>
@@ -371,14 +370,16 @@ const Dashboard: React.FC<{ user: User; onLogout: () => void }> = ({ user, onLog
 
   return (
     <div className="dark-scroll" style={{ display: 'flex', minHeight: '100vh', background: 'var(--d-bg)' }}>
-      <Sidebar user={user} onLogout={onLogout} isConnected={isConnected} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: 224 }}>
+      <Sidebar user={user} onLogout={onLogout} isConnected={isConnected} mobileOpen={mobileNavOpen} />
+      <div className={`sidebar-backdrop${mobileNavOpen ? ' open' : ''}`} onClick={() => setMobileNavOpen(false)} />
+      <div className="dashboard-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: 224, minWidth: 0 }}>
         <TopBar
           title={pageInfo.title}
           subtitle={pageInfo.subtitle}
           isConnected={isConnected}
           onRefresh={fetchInitialData}
           onNewAgent={() => setShowAgentForm(v => !v)}
+          onMenuClick={() => setMobileNavOpen(v => !v)}
         />
         <main style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
           {isFreePlan && window.location.pathname === '/dashboard' && (

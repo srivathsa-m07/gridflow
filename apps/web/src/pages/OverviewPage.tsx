@@ -77,13 +77,13 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       <div style={{ display: 'grid', gap: 20 }}>
         <AlertBanner alerts={alerts} onDismiss={onDismissAlert} />
 
-        <Card style={{ textAlign: 'center', padding: 28 }}>
+        <Card variant="dark" style={{ textAlign: 'center', padding: 28 }}>
           <div style={{ marginBottom: 12 }}>
             <div style={{ margin: '0 auto 12px', display: 'flex', height: 56, width: 56, alignItems: 'center', justifyContent: 'center', borderRadius: 16, background: 'var(--d-overlay)' }}>
               <Server size={22} color="var(--d-text-2)" />
             </div>
-            <H2>No agents connected</H2>
-            <Lead style={{ marginTop: 8 }}>Create your first monitoring agent to begin infrastructure telemetry collection.</Lead>
+            <H2 dark>No agents connected</H2>
+            <Lead dark style={{ marginTop: 8 }}>Create your first monitoring agent to begin infrastructure telemetry collection.</Lead>
             {onNewAgent && (
               <div style={{ marginTop: 18 }}>
                 <Button variant="blue" onClick={onNewAgent} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>Provision your first agent <ArrowRight size={14} /></Button>
@@ -95,8 +95,8 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           {ONBOARDING_STEPS.map(({ n, title, desc }) => (
             <Card key={n} variant="darkOverlay" style={{ padding: 24 }}>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 800, marginBottom: 8 }}>{n}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 20, fontWeight: 800, marginBottom: 8, color: 'var(--d-text-2)' }}>{n}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6, color: 'var(--d-text)' }}>{title}</div>
               <div style={{ fontSize: 13, color: 'var(--d-text-3)' }}>{desc}</div>
             </Card>
           ))}

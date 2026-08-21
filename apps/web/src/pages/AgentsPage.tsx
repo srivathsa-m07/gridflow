@@ -178,7 +178,7 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
             <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: 'var(--d-text)' }}>Provisioned agents</p>
             <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--d-text-3)' }}>{agents.length} agent{agents.length === 1 ? '' : 's'} in {organizationName || 'your organization'}</p>
           </div>
-          <Button variant="secondary" onClick={loadAgents} style={{ padding: 8 }} title="Refresh">
+          <Button variant="secondary" dark onClick={loadAgents} style={{ padding: 8 }} title="Refresh">
             <RefreshCw size={14} />
           </Button>
         </div>
@@ -194,12 +194,14 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
             <p style={{ fontSize: 13, color: 'var(--d-text-3)', margin: 0 }}>Provision an agent from the top bar to see it appear here.</p>
           </div>
         ) : (
+          <div>
+            <p className="overline tablet-scroll-hint" style={{ display: 'none', color: 'var(--d-text-3)', padding: '10px 20px 0' }}>Swipe to see all columns and actions →</p>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 860 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760 }}>
               <thead>
                 <tr style={{ textAlign: 'left' }}>
                   {['Agent Name', 'Status', 'Registration', 'Last Seen', 'Created At', 'Organization', 'Actions'].map((h) => (
-                    <th key={h} style={{ padding: '10px 20px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--d-text-3)', borderBottom: '1px solid var(--d-border)' }}>{h}</th>
+                    <th key={h} className={h === 'Organization' ? 'hide-tablet' : undefined} style={{ padding: '10px 16px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--d-text-3)', borderBottom: '1px solid var(--d-border)', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -209,13 +211,13 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
                   const isRevoked = agent.status === 'revoked';
                   return (
                     <tr key={agent.id} style={{ borderBottom: '1px solid var(--d-border)' }}>
-                      <td style={{ padding: '14px 20px', fontSize: 13, fontWeight: 600, color: 'var(--d-text)' }}>{agent.name}</td>
-                      <td style={{ padding: '14px 20px' }}><StatusPill status={agent.status} /></td>
-                      <td style={{ padding: '14px 20px', fontSize: 12, color: agent.registered ? 'var(--ok)' : 'var(--warn)' }}>{agent.registered ? 'Registered' : 'Pending'}</td>
-                      <td style={{ padding: '14px 20px', fontSize: 12, color: 'var(--d-text-2)' }}>{formatDate(agent.lastHeartbeatAt)}</td>
-                      <td style={{ padding: '14px 20px', fontSize: 12, color: 'var(--d-text-2)' }}>{formatDate(agent.createdAt)}</td>
-                      <td style={{ padding: '14px 20px', fontSize: 12, color: 'var(--d-text-2)' }}>{organizationName || '—'}</td>
-                      <td style={{ padding: '14px 20px' }}>
+                      <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: 'var(--d-text)' }}>{agent.name}</td>
+                      <td style={{ padding: '14px 16px' }}><StatusPill status={agent.status} /></td>
+                      <td style={{ padding: '14px 16px', fontSize: 12, color: agent.registered ? 'var(--ok)' : 'var(--d-text-3)' }}>{agent.registered ? 'Registered' : 'Pending'}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 12, color: 'var(--d-text-2)', whiteSpace: 'nowrap' }}>{formatDate(agent.lastHeartbeatAt)}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 12, color: 'var(--d-text-2)', whiteSpace: 'nowrap' }}>{formatDate(agent.createdAt)}</td>
+                      <td className="hide-tablet" style={{ padding: '14px 16px', fontSize: 12, color: 'var(--d-text-2)' }}>{organizationName || '—'}</td>
+                      <td style={{ padding: '14px 16px' }}>
                         <div style={{ display: 'flex', gap: 6 }}>
                           <button disabled={busy} onClick={() => handleViewDetails(agent)} title="View details" style={iconButtonStyle}>
                             <Eye size={14} />
@@ -239,6 +241,7 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
                 })}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </Card>
@@ -277,10 +280,18 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
           <p style={{ fontSize: 12, color: 'var(--d-text-3)', margin: '0 0 16px' }}>
             This provisioning token expires {formatDate(installCommands.expiresAt)} and can only be used once.
           </p>
-          <CopyLine label="1. Pull the image" value={installCommands.commands.dockerPull} />
-          <CopyLine label="2. Run (foreground)" value={installCommands.commands.dockerRunSimple} />
-          <CopyLine label="3. Run (daemon)" value={installCommands.commands.dockerRun} />
-          <CopyLine label="Local development" value={installCommands.commands.local} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ok)', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 999, padding: '3px 10px' }}>Recommended</span>
+          </div>
+          <CopyLine label="Run as a background service" value={installCommands.commands.dockerRun} />
+          <details style={{ marginTop: 4 }}>
+            <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--d-text-3)', userSelect: 'none', marginBottom: 12 }}>
+              Advanced installation options
+            </summary>
+            <CopyLine label="Pull the image separately" value={installCommands.commands.dockerPull} />
+            <CopyLine label="Run in foreground" value={installCommands.commands.dockerRunSimple} />
+            <CopyLine label="Local development" value={installCommands.commands.local} />
+          </details>
         </Modal>
       )}
 
@@ -302,8 +313,8 @@ export const AgentsPage: React.FC<AgentsPageProps> = ({ organizationName, backen
               : `"${confirmTarget.agent.name}" and its provisioning history will be permanently deleted. This cannot be undone.`}
           </p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-            <Button variant="secondary" onClick={() => setConfirmTarget(null)}>Cancel</Button>
-            <Button variant="danger" onClick={handleConfirmedAction}>
+            <Button variant="secondary" dark onClick={() => setConfirmTarget(null)}>Cancel</Button>
+            <Button variant="danger" dark onClick={handleConfirmedAction}>
               {confirmTarget.type === 'revoke' ? 'Revoke' : 'Delete'}
             </Button>
           </div>

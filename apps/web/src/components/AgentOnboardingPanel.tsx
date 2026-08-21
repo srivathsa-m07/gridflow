@@ -55,8 +55,8 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
           padding: '10px 14px',
           fontSize: 13,
           fontWeight: 600,
-          border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(37,99,235,0.2)'}`,
-          background: active ? 'rgba(16,185,129,0.12)' : 'rgba(37,99,235,0.1)',
+          border: `1px solid ${active ? 'rgba(16,185,129,0.3)' : 'rgba(31,109,74,0.2)'}`,
+          background: active ? 'rgba(16,185,129,0.12)' : 'rgba(31,109,74,0.1)',
           color: active ? 'var(--ok)' : 'var(--accent-blue)',
           cursor: 'pointer',
         }}
@@ -115,39 +115,65 @@ export const AgentOnboardingPanel: React.FC<AgentOnboardingPanelProps> = ({
           <p style={{ marginTop: 14, fontSize: 12, color: 'var(--d-text-3)' }}>This is a one-time provisioning token — the agent exchanges it for its permanent credential on first startup. It expires after a short window and cannot be reused, so keep it secure and do not commit it to source control.</p>
         </Card>
 
-        <Card variant="darkOverlay" style={{ padding: 20 }}>
-          <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Docker deployment</p>
-          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent as a container on any server with Docker installed. No Node.js and no source checkout required — the image is published and pulled directly from GitHub Container Registry.</p>
-          <div style={{ display: 'grid', gap: 20 }}>
-            {[
-              { label: 'Step 1', title: 'Pull the published agent image', command: pullCommand },
-              { label: 'Step 2a', title: 'Run quick start (foreground)', command: dockerSimple },
-              { label: 'Step 2b', title: 'Production run (daemon)', command: dockerCommand },
-            ].map((item) => (
-              <div key={item.label}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}><span style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>{item.label}</span> {item.title}</p>
-                  {renderCopyButton(item.command, item.label)}
-                </div>
-                <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
-                  <code>{item.command}</code>
-                </pre>
-              </div>
-            ))}
+        {/* The production path (one command, auto-pulls the image) is the
+            visually dominant option — everything else is a secondary,
+            collapsed "advanced" path so a first-time user sees exactly one
+            obvious next step. */}
+        <Card variant="darkOverlay" style={{ padding: 20, border: '1px solid rgba(31,109,74,0.35)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ok)', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: 999, padding: '3px 10px' }}>Recommended</span>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--d-text)' }}>Deploy with Docker</p>
           </div>
-        </Card>
-
-        <Card variant="darkOverlay" style={{ padding: 20 }}>
-          <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Local development</p>
-          <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent from source. Requires Node.js 18+ and <code style={{ color: 'var(--d-text-2)' }}>npm install</code> from the monorepo root.</p>
+          <p style={{ margin: 0, marginBottom: 16, fontSize: 12, color: 'var(--d-text-2)' }}>
+            One command — no Node.js, no source checkout. The published image is pulled automatically from GitHub Container Registry on first run.
+          </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}>Set env vars and start</p>
-            {renderCopyButton(localCommand, 'local')}
+            <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}>Run as a background service</p>
+            {renderCopyButton(dockerCommand, 'primary')}
           </div>
           <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
-            <code>{localCommand}</code>
+            <code>{dockerCommand}</code>
           </pre>
         </Card>
+
+        <details>
+          <summary style={{ cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--d-text-3)', userSelect: 'none' }}>
+            Advanced installation options
+          </summary>
+          <div style={{ display: 'grid', gap: 20, marginTop: 16 }}>
+            <Card variant="darkOverlay" style={{ padding: 20 }}>
+              <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Docker, step by step</p>
+              <div style={{ display: 'grid', gap: 20 }}>
+                {[
+                  { label: 'Step 1', title: 'Pull the published agent image', command: pullCommand },
+                  { label: 'Step 2', title: 'Run quick start (foreground)', command: dockerSimple },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}><span style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>{item.label}</span> {item.title}</p>
+                      {renderCopyButton(item.command, item.label)}
+                    </div>
+                    <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+                      <code>{item.command}</code>
+                    </pre>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card variant="darkOverlay" style={{ padding: 20 }}>
+              <p style={{ margin: 0, marginBottom: 10, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--d-text-3)' }}>Local development</p>
+              <p style={{ margin: 0, marginBottom: 18, fontSize: 12, color: 'var(--d-text-2)' }}>Run the agent from source. Requires Node.js 18+ and <code style={{ color: 'var(--d-text-2)' }}>npm install</code> from the monorepo root.</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--d-text-2)', fontWeight: 600 }}>Set env vars and start</p>
+                {renderCopyButton(localCommand, 'local')}
+              </div>
+              <pre style={{ margin: 0, borderRadius: 16, background: 'var(--d-bg)', border: '1px solid var(--d-border)', padding: 16, fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--d-text-2)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>
+                <code>{localCommand}</code>
+              </pre>
+            </Card>
+          </div>
+        </details>
 
         <Card variant="darkOverlay" style={{ padding: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
           <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: 'var(--d-text-3)', marginBottom: 12 }}>What happens next</p>

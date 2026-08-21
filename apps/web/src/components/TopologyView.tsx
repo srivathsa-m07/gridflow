@@ -2,6 +2,7 @@ import React from 'react';
 import { Server, WifiOff, CheckCircle2, AlertTriangle, Activity } from 'lucide-react';
 import { AgentData, IncidentData } from '../types';
 import { Card } from './ui/Card';
+import { formatMetricPercent, metricColor, formatLastSeenTime } from '../utils/format';
 
 interface TopologyViewProps {
   agents: AgentData[];
@@ -64,15 +65,17 @@ export const TopologyView: React.FC<TopologyViewProps> = ({ agents, incidents })
                 <div style={{ display: 'grid', gap: 10 }}>
                   <div style={{ borderRadius: 16, background: 'var(--d-overlay)', padding: '10px 12px' }}>
                     <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>CPU</p>
-                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: agent.cpu > 80 ? 'var(--crit)' : agent.cpu > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.cpu}%</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: metricColor(agent.cpu, agent.isOnline) }}>{formatMetricPercent(agent.cpu)}</p>
                   </div>
                   <div style={{ borderRadius: 16, background: 'var(--d-overlay)', padding: '10px 12px' }}>
                     <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>Memory</p>
-                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: agent.memory > 80 ? 'var(--crit)' : agent.memory > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.memory}%</p>
+                    <p style={{ margin: '6px 0 0', fontSize: 13, fontWeight: 700, color: metricColor(agent.memory, agent.isOnline) }}>{formatMetricPercent(agent.memory)}</p>
                   </div>
                 </div>
 
-                <p style={{ margin: '16px 0 0', fontSize: 11, color: 'var(--d-text-3)' }}>Last seen {new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                <p style={{ margin: '16px 0 0', fontSize: 11, color: 'var(--d-text-3)' }}>
+                  {agent.isOnline ? 'Last seen' : 'Last known reading'} {formatLastSeenTime(agent.lastSeen)}
+                </p>
               </div>
             );
           })}

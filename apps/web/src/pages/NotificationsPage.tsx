@@ -25,7 +25,7 @@ export const NotificationsPage: React.FC<NotificationsPageProps> = ({
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--d-text)' }}>Incident Webhooks</div>
         </div>
 
-        <Lead style={{ marginBottom: 12 }}>Configure Discord and Slack webhooks to receive incident notifications when CPU or memory thresholds are breached. A 60-second cooldown per agent prevents duplicate alerts.</Lead>
+        <Lead dark style={{ marginBottom: 12 }}>Configure Discord and Slack webhooks to receive incident notifications when CPU or memory thresholds are breached. A 60-second cooldown per agent prevents duplicate alerts.</Lead>
 
         <div style={{ display: 'grid', gap: 12 }}>
           <div>

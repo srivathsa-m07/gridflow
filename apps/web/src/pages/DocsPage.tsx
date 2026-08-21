@@ -68,19 +68,19 @@ export const DocsPage: React.FC = () => {
       <section style={{ padding: '88px 0 64px' }}>
         <div style={{ display: 'grid', gap: 28, gridTemplateColumns: '280px 1fr', alignItems: 'start' }}>
           <aside style={{ display: 'grid', gap: 18 }}>
-            <Card variant="darkOverlay" style={{ padding: 22, position: 'sticky', top: 92 }}>
+            <Card style={{ padding: 22, position: 'sticky', top: 92 }}>
               <p style={{ margin: 0, marginBottom: 18, fontSize: 11, fontWeight: 700, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--text-3)' }}>Documentation</p>
               <nav style={{ display: 'grid', gap: 10 }}>
                 {SECTIONS.map((s) => {
                   const activeItem = active === s.id;
                   return (
-                    <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ width: '100%', textAlign: 'left', borderRadius: 14, border: 'none', background: activeItem ? 'rgba(37,99,235,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', cursor: 'pointer' }}>
+                    <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ width: '100%', textAlign: 'left', borderRadius: 14, border: 'none', background: activeItem ? 'rgba(31,109,74,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', cursor: 'pointer' }}>
                       {s.title}
                     </button>
                   );
                 })}
               </nav>
-              <div style={{ marginTop: 24, padding: 18, borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ marginTop: 24, padding: 18, borderRadius: 18, background: 'var(--bg-raised)', border: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, color: 'var(--text-3)' }}>
                   <Terminal size={16} />
                   <span style={{ fontSize: 12, fontWeight: 700 }}>Ready to deploy?</span>
@@ -94,7 +94,7 @@ export const DocsPage: React.FC = () => {
           </aside>
 
           <main style={{ minWidth: 0 }}>
-            <h1 style={{ margin: 0, marginBottom: 28, fontSize: 34, fontWeight: 800, color: 'var(--text)' }}>Documentation</h1>
+            <h1 style={{ margin: 0, marginBottom: 28, fontFamily: 'var(--font-serif)', fontSize: 32, fontWeight: 600, color: 'var(--text)' }}>Documentation</h1>
             <div style={{ display: 'grid', gap: 22 }}>
               {section.content.map((block, index) => {
                 if (block.type === 'heading') {
@@ -152,7 +152,7 @@ export const DocsPage: React.FC = () => {
               {SECTIONS.map((s) => {
                 const activeItem = active === s.id;
                 return (
-                  <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ borderRadius: 14, border: activeItem ? '1px solid rgba(37,99,235,0.35)' : '1px solid var(--border)', background: activeItem ? 'rgba(37,99,235,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
+                  <button key={s.id} type="button" onClick={() => setActive(s.id)} style={{ borderRadius: 14, border: activeItem ? '1px solid rgba(31,109,74,0.35)' : '1px solid var(--border)', background: activeItem ? 'rgba(31,109,74,0.12)' : 'transparent', color: activeItem ? 'var(--accent-blue)' : 'var(--text-3)', padding: '12px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer', width: 'fit-content' }}>
                     {s.title}
                   </button>
                 );

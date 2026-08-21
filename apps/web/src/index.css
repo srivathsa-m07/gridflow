@@ -3,27 +3,44 @@
 :root {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-serif: 'Fraunces', 'Georgia', serif;
 
-  /* Light "marketing" theme */
-  --text: #0f172a;
-  --text-2: #334155;
-  --text-3: #64748b;
+  /* ── Light "marketing" theme — sage/mint editorial palette ── */
+  --bg: #e3e9df;
+  --bg-raised: #eef2ea;
+  --surface: #f7f6ef;
+  --border: rgba(15, 42, 30, 0.12);
+  --text: #14261c;
+  --text-2: #3b5346;
+  --text-3: #5f7568;
 
-  /* Dark "dashboard" theme */
-  --d-bg: #0a0e17;
-  --d-raised: #10151f;
-  --d-overlay: #161c29;
+  /* ── Dark "dashboard/footer" theme ── */
+  --d-bg: #0b140f;
+  --d-raised: #0f1a13;
+  --d-overlay: #142219;
   --d-border: rgba(255,255,255,0.08);
-  --d-text: #f1f5f9;
-  --d-text-2: #94a3b8;
-  --d-text-3: #64748b;
+  --d-text: #eef3ee;
+  --d-text-2: #9fb3a6;
+  --d-text-3: #6c8377;
 
-  /* Shared accent / status colors */
-  --accent: #2563eb;
-  --accent-blue: #2563eb;
-  --ok: #16a34a;
-  --warn: #d97706;
-  --crit: #dc2626;
+  /* ── Shared accent / status colors ── */
+  --accent: #1f6d4a;
+  --accent-blue: #1f6d4a;
+  --mint: #7fe6b8;
+  --mint-text: #0c2b1c;
+  --ok: #1f9d63;
+  --warn: #b8862c;
+  --crit: #c1473f;
+
+  /* Secondary panel tint — the reference shifts hue per module (green hero,
+     blue-gray token panel, blue lend panel) rather than staying monochrome. */
+  --surface-tint: #d7e2e1;
+  --surface-tint-2: #c9dadb;
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
 }
 
 * {
@@ -38,13 +55,43 @@ html {
 
 body {
   margin: 0;
-  background-color: #faf9f6; /* Warm White */
-  color: #1e293b; /* Slate 800 */
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
 }
 
 code, pre, .font-mono {
   font-family: var(--font-mono);
+}
+
+/* Shared "eyebrow" label style used throughout the reference: small
+   uppercase monospace with wide tracking. */
+.overline {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+/* Light-theme form input (login/signup) */
+.input-light {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-light:focus {
+  border-color: var(--accent);
+}
+.input-light.error {
+  border-color: rgba(193,71,63,0.5);
 }
 
 /* Scrollbar */
@@ -56,11 +103,14 @@ code, pre, .font-mono {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(15, 42, 30, 0.25);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(15, 42, 30, 0.4);
+}
+.dark-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.14);
 }
 
 /* Fade-in utility */
@@ -75,28 +125,86 @@ code, pre, .font-mono {
 /* Subtle grid background for bright theme */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(15, 42, 30, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 42, 30, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
-/* Dot grid background for bright theme */
+/* Dot grid background — used on dark footer/panels, per reference */
 .bg-dot {
-  background-image: radial-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.bg-dot-light {
+  background-image: radial-gradient(rgba(15, 42, 30, 0.06) 1px, transparent 1px);
+  background-size: 18px 18px;
 }
 
 /* Premium shadows */
 .shadow-premium {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 
-              0 4px 12px -2px rgba(0, 0, 0, 0.04), 
-              0 10px 24px -6px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px 0 rgba(15,42,30, 0.04),
+              0 4px 12px -2px rgba(15,42,30, 0.05),
+              0 10px 24px -6px rgba(15,42,30, 0.04);
 }
 
 .shadow-premium-lg {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02),
-              0 12px 28px -4px rgba(0, 0, 0, 0.04),
-              0 24px 48px -12px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(15,42,30, 0.03),
+              0 12px 28px -4px rgba(15,42,30, 0.05),
+              0 24px 48px -12px rgba(15,42,30, 0.07);
+}
+
+/* ── Responsive helpers ──────────────────────────────────────────────
+   Inline `style` grid-template-columns are used throughout for layout,
+   so these overrides use !important to win against them at narrow
+   viewports without threading a responsive prop through every page. */
+@media (max-width: 860px) {
+  .grid-2col { grid-template-columns: 1fr !important; }
+  .grid-2col-rev { grid-template-columns: 1fr !important; }
+}
+@media (max-width: 1100px) {
+  .hide-tablet { display: none !important; }
+  .tablet-scroll-hint { display: block !important; }
+}
+@media (max-width: 640px) {
+  .grid-3col { grid-template-columns: 1fr !important; }
+  .mobile-only-hint { display: block !important; }
+  .marketing-nav-links { display: none !important; }
+  .flow-diagram { grid-template-columns: 1fr !important; text-align: center !important; }
+  .flow-diagram-hub { width: 140px !important; height: 140px !important; }
+  .flow-diagram-connector { justify-content: center !important; }
+}
+
+/* Dashboard shell — off-canvas sidebar below the tablet breakpoint. The
+   sidebar is always in the DOM; only its transform/visibility changes. */
+.mobile-menu-btn { display: none; }
+.sidebar-backdrop { display: none; }
+@media (max-width: 860px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .dashboard-sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+  .dashboard-main {
+    padding-left: 0 !important;
+  }
+  .mobile-menu-btn {
+    display: inline-flex !important;
+  }
+  .topbar-status-pill {
+    display: none !important;
+  }
+  .new-agent-label {
+    display: none !important;
+  }
+  .sidebar-backdrop.open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 39;
+  }
 }
 
 /* Light skeleton loader */
@@ -105,9 +213,8 @@ code, pre, .font-mono {
   100% { background-position: 400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #e6ebe2 25%, #d7ded1 50%, #e6ebe2 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 6px;
 }
-

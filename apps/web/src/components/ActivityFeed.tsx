@@ -9,7 +9,7 @@ const TYPE_CONFIG = {
   agent_connected:    { icon: Wifi,          color: 'var(--ok)',         bg: 'rgba(16,165,127,0.12)' },
   agent_offline:      { icon: AlertTriangle, color: 'var(--crit)',       bg: 'rgba(220,38,38,0.12)' },
   incident_triggered: { icon: Activity,      color: 'var(--warn)',       bg: 'rgba(245,158,11,0.12)' },
-  agent_provisioned:  { icon: PlusCircle,    color: 'var(--accent-blue)', bg: 'rgba(37,99,235,0.12)' },
+  agent_provisioned:  { icon: PlusCircle,    color: 'var(--accent-blue)', bg: 'rgba(31,109,74,0.12)' },
 };
 
 export const ActivityFeed: React.FC<ActivityFeedProps> = ({ events }) => (

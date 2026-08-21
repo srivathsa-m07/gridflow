@@ -7,6 +7,9 @@ interface SidebarProps {
   user: { name: string; email: string; organizationName?: string; plan?: string } | null;
   onLogout: () => void;
   isConnected: boolean;
+  // Controls the off-canvas state below the tablet breakpoint — ignored
+  // above it, where the sidebar is always visible.
+  mobileOpen?: boolean;
 }
 
 const NAV = [
@@ -25,26 +28,23 @@ const navBase: React.CSSProperties = {
   cursor: 'pointer',
 };
 
-export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected, mobileOpen }) => {
   const isFreePlan = !user?.plan || user.plan === 'free';
   const initials = (user?.name || user?.email || 'U').slice(0, 2).toUpperCase();
 
   return (
-    <aside style={{
+    <aside className={`dashboard-sidebar${mobileOpen ? ' sidebar-open' : ''}`} style={{
       position: 'fixed', inset: '0 auto 0 0', zIndex: 40,
       width: 224, display: 'flex', flexDirection: 'column',
       background: 'var(--d-raised)', borderRight: '1px solid var(--d-border)',
     }}>
       <div style={{ height: 64, display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', borderBottom: '1px solid var(--d-border)' }}>
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Activity size={14} color="#fff" />
+        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'var(--d-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Activity size={14} color="var(--d-bg)" />
         </div>
-        <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--d-text)', letterSpacing: '-0.02em' }}>GRIDFLOW</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 8, height: 8, borderRadius: '50%', background: isConnected ? 'var(--ok)' : 'var(--d-text-3)' }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: isConnected ? 'var(--ok)' : 'var(--d-text-3)' }}>
-            {isConnected ? 'Live' : 'Disconnected'}
-          </span>
+        <span style={{ fontFamily: 'var(--font-serif)', fontSize: 17, fontWeight: 600, color: 'var(--d-text)' }}>Gridflow</span>
+        <div title={isConnected ? 'Live' : 'Disconnected'} style={{ marginLeft: 'auto', flexShrink: 0 }}>
+          <span style={{ display: 'block', width: 8, height: 8, borderRadius: '50%', background: isConnected ? 'var(--ok)' : 'var(--d-text-3)' }} />
         </div>
       </div>
 
@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected })
         <Card variant="darkOverlay" style={{ padding: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Workspace</span>
-            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 8px', borderRadius: 8, background: isFreePlan ? 'rgba(255,255,255,0.04)' : 'rgba(37,99,235,0.12)', color: isFreePlan ? 'var(--d-text-3)' : 'var(--accent-blue)' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 8px', borderRadius: 8, background: isFreePlan ? 'rgba(255,255,255,0.04)' : 'rgba(31,109,74,0.12)', color: isFreePlan ? 'var(--d-text-3)' : 'var(--accent-blue)' }}>
               {isFreePlan ? 'Free' : (user?.plan || 'Pro')}
             </span>
           </div>
@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected })
       </div>
 
       <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <span style={{ padding: '0 8px', marginBottom: 6, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Console</span>
+        <span className="overline" style={{ padding: '0 8px', marginBottom: 6, color: 'var(--d-text-3)' }}>Console</span>
         {NAV.map(({ to, icon: Icon, label }) => (
           <NavLink key={to} to={to} end={to === '/dashboard'}
             style={({ isActive }) => ({
@@ -78,7 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isConnected })
         ))}
 
         <div style={{ margin: '14px 0', borderTop: '1px solid var(--d-border)' }} />
-        <span style={{ padding: '0 8px', marginBottom: 6, fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--d-text-3)' }}>Product</span>
+        <span className="overline" style={{ padding: '0 8px', marginBottom: 6, color: 'var(--d-text-3)' }}>Product</span>
         {[
           { to: '/pricing', icon: Sparkles, label: 'Pricing' },
           { to: '/', icon: Globe, label: 'Website' },

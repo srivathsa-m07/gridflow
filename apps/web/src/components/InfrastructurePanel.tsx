@@ -2,6 +2,7 @@ import React from 'react';
 import { Server, CheckCircle, WifiOff, Clock } from 'lucide-react';
 import { AgentData } from '../types';
 import { Card } from './ui/Card';
+import { formatMetricPercent, metricColor, formatLastSeenTime } from '../utils/format';
 
 interface InfrastructurePanelProps {
   agents: AgentData[];
@@ -51,15 +52,15 @@ export const InfrastructurePanel: React.FC<InfrastructurePanelProps> = ({ agents
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, auto))', gap: 12, textAlign: 'right' }}>
                 <div>
                   <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>CPU</p>
-                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: agent.cpu > 80 ? 'var(--crit)' : agent.cpu > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.cpu}%</p>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: metricColor(agent.cpu, agent.isOnline) }}>{formatMetricPercent(agent.cpu)}</p>
                 </div>
                 <div>
                   <p style={{ margin: 0, fontSize: 10, color: 'var(--d-text-3)' }}>MEM</p>
-                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: agent.memory > 80 ? 'var(--crit)' : agent.memory > 50 ? 'var(--warn)' : 'var(--d-text)' }}>{agent.memory}%</p>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, fontWeight: 700, color: metricColor(agent.memory, agent.isOnline) }}>{formatMetricPercent(agent.memory)}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
                   <Clock size={12} color='var(--d-text-3)' />
-                  <span style={{ fontSize: 10, color: 'var(--d-text-3)' }}>{new Date(agent.lastSeen).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span style={{ fontSize: 10, color: 'var(--d-text-3)' }}>{formatLastSeenTime(agent.lastSeen)}</span>
                 </div>
               </div>
             </div>

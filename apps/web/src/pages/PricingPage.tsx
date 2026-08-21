@@ -43,7 +43,7 @@ export const PricingPage: React.FC = () => (
 
       <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', marginBottom: 40 }}>
         {TIERS.map((tier) => (
-          <Card key={tier.name} style={{ position: 'relative', padding: 24, borderColor: tier.badge ? 'rgba(37,99,235,0.12)' : 'var(--border)' }}>
+          <Card key={tier.name} style={{ position: 'relative', padding: 24, borderColor: tier.badge ? 'rgba(31,109,74,0.12)' : 'var(--border)' }}>
             {tier.badge && <span style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', borderRadius: 999, background: 'var(--accent-blue)', padding: '6px 14px', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff' }}>{tier.badge}</span>}
             <div style={{ marginBottom: 18 }}>
               <div style={{ margin: 0, marginBottom: 8, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--text-3)' }}>{tier.name}</div>
@@ -66,6 +66,7 @@ export const PricingPage: React.FC = () => (
         ))}
       </div>
 
+      <p className="overline mobile-only-hint" style={{ display: 'none', color: 'var(--text-3)', marginBottom: 10 }}>Swipe to compare plans →</p>
       <Card style={{ overflowX: 'auto', borderRadius: 20, padding: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 680 }}>
           <thead style={{ background: 'rgba(255,255,255,0.04)' }}>
